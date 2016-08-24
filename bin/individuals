@@ -1,0 +1,61 @@
+#!/bin/bash  
+
+inputfile=$1
+c=$2
+
+echo 'now processing chromosome '$c
+
+### step 0
+nfile='ALL.chr'$c'.individuals.vcf.gz'
+
+if [ ! -f $nfile ]; then
+  mv $1 $nfile
+
+  ### step 1
+  echo 'unzipping '$nfile
+  time gunzip $nfile
+  unzipped=${nfile%.*z}
+  echo 'unzipped file', $unzipped
+  awk 'NR == 253  {print; exit}' $unzipped > columns.txt
+fi
+
+### step 2
+pdir='chr'$c'p/'
+ndir='chr'$c'n/'
+
+mkdir $pdir
+mkdir $ndir
+
+columfile='columns.txt'
+
+### step 3
+time while read line; do
+  if [[ $line != "#" ]]; then
+    echo $line | awk '{for(i=10;i<=2513;i++) {name="chr22p/chr22.p"i-9;print $i"   "$2"    "$3"    "$4"    "$5"    "$8 > name}}'
+
+    ### step 4
+    for i in {1..2504}
+    do
+      col=$(($i + 9))
+      name=$(cut -f $col $columfile)
+      oldfile=$pdir'chr'$c'.p'$i
+      newfile=$ndir'chr'$c'.'$name
+      #echo 'moving '$oldfile' to '$newfile
+      cat $oldfile| awk '{print $6}' | awk -F ";" '{print $9}'| awk -F"=" '{print $2}' > AF_value.$c
+      paste $oldfile AF_value.$c | awk '{$6=""; print}'> tmp.file.$c
+      cat tmp.file.$c | awk ' $6 >= 0.5 {print $0}'| awk -F "|" '$1==0 || $2==0 {print $2}' > tmp.select.$c
+      cat tmp.file.$c | awk ' $6 < 0.5 {print $0}'| awk -F "|" '$1==1 || $2==1 {print $2}' >> tmp.select.$c
+      cat tmp.select.$c | awk '{print $2"        "$3"    "$4"    "$5"    "$6}' >> $newfile
+      rm $oldfile
+    done
+
+    rm tmp.file.$c
+    rm tmp.select.$c
+    rm AF_value.$c
+
+  fi
+done < $unzipped
+
+
+### step 5
+rm $unzipped
