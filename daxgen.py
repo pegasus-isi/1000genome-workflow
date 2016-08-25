@@ -32,6 +32,14 @@ e_sifting = Executable('sifting', arch='x86_64', installed=False)
 e_sifting.addPFN(PFN('file://' + base_dir + '/bin/sifting', 'local'))
 workflow.addExecutable(e_sifting)
 
+# Population Files
+populations = []
+for base_file in os.listdir('data/populations'):
+  f_pop = File(base_file)
+  f_pop.addPFN(PFN('file://' + os.path.abspath('data/populations') + '/' + base_file, 'local'))
+  workflow.addFile(f_pop)
+  populations.append(f_pop)
+
 f = open(datafile)
 datacsv = csv.reader(f)
 step = 1000
