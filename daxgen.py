@@ -27,7 +27,8 @@ workflow.addExecutable(e_individuals)
 # Individuals Jobs
 f = open(datafile)
 datacsv = csv.reader(f)
-step = 10000
+step = 1000
+threshold = 10000
 
 for row in datacsv:
   base_file = row[0]
@@ -39,7 +40,7 @@ for row in datacsv:
   f_individuals.addPFN(PFN('file://' + os.path.abspath('data/%s' % dataset) + '/' + base_file, 'local'))
   workflow.addFile(f_individuals)
 
-  while counter < num_lines:
+  while counter < threshold:
     c_num = base_file[base_file.find('chr')+3:]
     c_num = c_num[0:c_num.find('.')]
     stop = counter + step
@@ -51,7 +52,7 @@ for row in datacsv:
     j_individuals = Job(name='individuals')
     j_individuals.uses(f_individuals, link=Link.INPUT)
     j_individuals.uses(f_chrn, link=Link.OUTPUT, transfer=True)
-    j_individuals.addArguments(f_individuals, c_num, str(counter), str(stop), str(num_lines))
+    j_individuals.addArguments(f_individuals, c_num, str(counter), str(stop), str(threshold))
 
     workflow.addJob(j_individuals)
 
