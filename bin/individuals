@@ -7,14 +7,14 @@ echo 'now processing chromosome '$c
 
 ### step 0
 nfile='ALL.chr'$c'.individuals.vcf.gz'
+unzipped=${nfile%.*z}
 
-if [ ! -f $nfile ]; then
+if [ ! -f $unzipped ]; then
   mv $1 $nfile
 
   ### step 1
   echo 'unzipping '$nfile
   time gunzip $nfile
-  unzipped=${nfile%.*z}
   echo 'unzipped file', $unzipped
   awk 'NR == 253  {print; exit}' $unzipped > columns.txt
 fi
@@ -23,15 +23,15 @@ fi
 pdir='chr'$c'p/'
 ndir='chr'$c'n/'
 
-mkdir $pdir
-mkdir $ndir
+mkdir -p $pdir
+mkdir -p $ndir
 
 columfile='columns.txt'
 
 ### step 3
 time while read line; do
-  if [[ $line != "#" ]]; then
-    echo $line | awk '{for(i=10;i<=2513;i++) {name="chr22p/chr22.p"i-9;print $i"   "$2"    "$3"    "$4"    "$5"    "$8 > name}}'
+  if [[ $line != \#* ]]; then
+    echo $line | awk -v c=$c '{for(i=10;i<=2513;i++) {name="chr"c"p/chr"c".p"i-9;print $i"   "$2"    "$3"    "$4"    "$5"    "$8 > name}}'
 
     ### step 4
     for i in {1..2504}
