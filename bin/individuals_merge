@@ -11,6 +11,7 @@ do
   mv $data tmp/
   cd tmp
   tar zxf $data
+  rm -rf $data
   for f in *
   do
     cat $f >> ../merged/$f
