@@ -1,0 +1,41 @@
+#!/bin/bash
+
+input=$1
+c=$2
+
+newfile='ALL.chr'$c'.vcf.gz'
+mv $1 $newfile
+
+echo 'unzipping '$newfile
+gunzip $newfile
+unzipped=${newfile%.*z}
+echo 'unziped file:', $unzipped
+
+siftfile='SIFT.chr'$c'.vcf'
+
+header=$(head -n 1000 $unzipped | grep "#" | wc -l)
+
+echo 'taking columns from '$unzipped
+grep -n "deleterious\|tolerated" $unzipped | grep "rs" > $siftfile
+
+lines='line.txt'
+ids='id.txt'
+info='info.txt'
+sifts='sift.txt'
+
+awk '{print $1}' $siftfile | awk -F ":" '{print $1-'$header'}' > $lines #.txt
+awk '{print $3}' $siftfile > $ids #.txt
+awk '{print $8}' $siftfile > $info #.txt
+awk -F "|" '{print $5"\t"$17"\t"$18}' $info | sed 's/(/\t/g' | sed 's/)//g' > $sifts
+
+final='sifted.SIFT.chr'$c'.txt'
+pr -m -t -s\ $lines $ids $sifts | gawk '{print $1,$2,$3,$5,$7}' > $final
+
+echo 'line, id, ENSG id, SIFT, and phenotype printed to '$final
+
+rm $siftfile
+rm $lines
+rm $ids
+rm $info
+rm $sifts
+rm $unzipped

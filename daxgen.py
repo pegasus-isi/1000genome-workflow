@@ -19,7 +19,7 @@ base_dir = os.path.abspath('.')
 # Create a abstract dag
 workflow = ADAG("1000genome-%s" % dataset)
 
-# Executable
+# Executables
 e_individuals = Executable('individuals', arch='x86_64', installed=False)
 e_individuals.addPFN(PFN('file://' + base_dir + '/bin/individuals', 'local'))
 workflow.addExecutable(e_individuals)
@@ -28,7 +28,10 @@ e_individuals_merge = Executable('individuals_merge', arch='x86_64', installed=F
 e_individuals_merge.addPFN(PFN('file://' + base_dir + '/bin/individuals_merge', 'local'))
 workflow.addExecutable(e_individuals_merge)
 
-# Individuals Jobs
+e_sifting = Executable('sifting', arch='x86_64', installed=False)
+e_sifting.addPFN(PFN('file://' + base_dir + '/bin/sifting', 'local'))
+workflow.addExecutable(e_sifting)
+
 f = open(datafile)
 datacsv = csv.reader(f)
 step = 1000
@@ -42,6 +45,7 @@ for row in datacsv:
   individuals_jobs = []
   output_files = []
 
+  # Individuals Jobs
   f_individuals = File(base_file)
   f_individuals.addPFN(PFN('file://' + os.path.abspath('data/%s' % dataset) + '/' + base_file, 'local'))
   workflow.addFile(f_individuals)
@@ -83,6 +87,22 @@ for row in datacsv:
 
   for job in individuals_jobs:
     workflow.depends(j_individuals_merge, job)
+
+  # Sifting Job
+  j_sifting = Job(name='sifting')
+  
+  f_sifting = File(row[2])
+  f_sifting.addPFN(PFN('file://' + os.path.abspath('data/%s' % dataset) + '/sifting/' + row[2], 'local'))
+  workflow.addFile(f_sifting)
+
+  f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)
+
+  j_sifting = Job(name='sifting')
+  j_sifting.uses(f_sifting, link=Link.INPUT)
+  j_sifting.uses(f_sifted, link=Link.OUTPUT, transfer=True)
+  j_sifting.addArguments(f_sifting, c_num)
+
+  workflow.addJob(j_sifting)
 
 # Write the DAX to file
 f = open(daxfile, "w")
