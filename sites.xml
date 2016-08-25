@@ -4,14 +4,18 @@
 
     <!-- The local site contains information about the submit host -->
     <site handle="local">
+	<directory type="shared-scratch" path="${PWD}/work/scratch">
+            <file-server operation="all" url="file://${PWD}/work/scratch"/>
+        </directory>
+        <directory type="local-storage" path="${PWD}/work/outputs">
+            <file-server operation="all" url="file://${PWD}/work/outputs"/>
+	</directory>
     </site>
 
     <site handle="compute" arch="x86_64" os="LINUX">
         <!-- These profiles tell Pegasus that the site is a plain Condor pool -->
         <profile namespace="pegasus" key="style">condor</profile>
         <profile namespace="condor" key="universe">vanilla</profile>
-
-
-
     </site>
+
 </sitecatalog>
