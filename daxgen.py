@@ -24,16 +24,22 @@ e_individuals = Executable('individuals', arch='x86_64', installed=False)
 e_individuals.addPFN(PFN('file://' + base_dir + '/bin/individuals', 'local'))
 workflow.addExecutable(e_individuals)
 
+e_individuals_merge = Executable('individuals_merge', arch='x86_64', installed=False)
+e_individuals_merge.addPFN(PFN('file://' + base_dir + '/bin/individuals_merge', 'local'))
+workflow.addExecutable(e_individuals_merge)
+
 # Individuals Jobs
 f = open(datafile)
 datacsv = csv.reader(f)
 step = 1000
 threshold = 10000
+individuals_files = []
 
 for row in datacsv:
   base_file = row[0]
   num_lines = int(row[1])
   counter = 1
+  individuals_jobs = []
   output_files = []
 
   f_individuals = File(base_file)
@@ -51,12 +57,32 @@ for row in datacsv:
 
     j_individuals = Job(name='individuals')
     j_individuals.uses(f_individuals, link=Link.INPUT)
-    j_individuals.uses(f_chrn, link=Link.OUTPUT, transfer=True)
+    j_individuals.uses(f_chrn, link=Link.OUTPUT, transfer=False)
     j_individuals.addArguments(f_individuals, c_num, str(counter), str(stop), str(threshold))
 
+    individuals_jobs.append(j_individuals)
     workflow.addJob(j_individuals)
 
     counter = counter + step
+
+  # merge job
+  j_individuals_merge = Job(name='individuals_merge')
+  j_individuals_merge.addArguments(c_num)
+
+  for out_name in output_files:
+    f_chrn = File(out_name)
+    j_individuals_merge.uses(f_chrn, link=Link.INPUT)
+    j_individuals_merge.addArguments(f_chrn)
+
+  individuals_filename = 'chr%sn.tar.gz' % c_num
+  individuals_files.append(individuals_filename)
+  f_chrn_merged = File(individuals_filename)
+  j_individuals_merge.uses(f_chrn_merged, link=Link.OUTPUT, transfer=True)
+
+  workflow.addJob(j_individuals_merge)
+
+  for job in individuals_jobs:
+    workflow.depends(j_individuals_merge, job)
 
 # Write the DAX to file
 f = open(daxfile, "w")

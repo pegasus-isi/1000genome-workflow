@@ -1,4 +1,4 @@
-# w Workflow
+# 1000Genome Workflow
 
 Generating a Workflow
 ---------------------

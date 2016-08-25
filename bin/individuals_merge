@@ -1,0 +1,28 @@
+#!/bin/bash
+
+c=$1
+
+mkdir -p merged
+
+for data in "${@:2}"
+do
+  echo "Merging $data..."
+  mkdir -p tmp
+  mv $data tmp/
+  cd tmp
+  tar zxf $data
+  for f in *
+  do
+    cat $f >> ../merged/$f
+  done
+  cd ..
+  rm -rf tmp
+done
+
+cd merged
+outputfile='chr'$c'n.tar.gz'
+echo "Creating merged file $outputfile..."
+tar -zcf ../$outputfile .
+
+cd ..
+rm -rf merged
