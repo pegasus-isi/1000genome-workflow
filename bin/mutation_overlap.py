@@ -6,6 +6,7 @@ tic = time.clock()
 import numpy as np
 import numpy.ma as ma
 from random import sample
+import os
 import os.path
 import matplotlib
 matplotlib.use('Agg')
@@ -35,15 +36,19 @@ c = args.c
 
 SIFT = 'NO-SIFT'
 n_runs = 1
-#pops = ('ALL', 'EUR', 'EAS', 'AFR', 'AMR', 'SAS', 'GBR')
 siftfile = './sifted.SIFT.chr' + str(c) + '.txt'
 data_dir = './'
 pop_dir = './'
 outdata_dir = './output_no_sift/'
 plot_dir = './plots_no_sift/'
+
+if not os.path.exists(outdata_dir):
+  os.makedirs(outdata_dir)
+if not os.path.exists(plot_dir):
+  os.makedirs(plot_dir)
+
 OutputFormat = '.png'
 
-#POP = pops[args.pop]
 POP = args.pop
 chrom = 'chr' + str(c)
 
@@ -427,3 +432,9 @@ if __name__ == '__main__':
     # gen overlapping
     gene_pair_list = res.gene_pairs(mutation_index_array)
     wr.write_gene_pairs(genepairsfile, gene_pair_list)
+
+    # gen final output
+    tar = tarfile.open('chr%s-%s.tar.gz' % (c, POP), 'w:gz')
+    tar.add(outdata_dir)
+    tar.add(plot_dir)
+    tar.close()

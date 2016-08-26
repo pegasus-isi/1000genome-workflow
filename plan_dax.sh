@@ -17,7 +17,6 @@ DAXFILE=$1
 pegasus-plan --conf pegasus.properties \
     --dax $DAXFILE \
     --dir $DIR/submit \
-    --input-dir $DIR/input \
     --output-dir $DIR/output \
     --sites compute \
     --submit

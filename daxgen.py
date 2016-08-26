@@ -33,7 +33,7 @@ e_sifting.addPFN(PFN('file://' + base_dir + '/bin/sifting', 'local'))
 workflow.addExecutable(e_sifting)
 
 e_mutation = Executable('mutation_overlap', arch='x86_64', installed=False)
-e_mutation.addPFN(PFN('file://' + base_dir + '/bin/mutation-overlap.py', 'local'))
+e_mutation.addPFN(PFN('file://' + base_dir + '/bin/mutation_overlap.py', 'local'))
 workflow.addExecutable(e_mutation)
 
 # Population Files
@@ -48,8 +48,11 @@ f = open(datafile)
 datacsv = csv.reader(f)
 step = 1000
 threshold = 10000
+c_nums = []
 individuals_files = []
 sifted_files = []
+sifted_jobs = []
+individuals_merge_jobs = []
 
 for row in datacsv:
   base_file = row[0]
@@ -63,9 +66,11 @@ for row in datacsv:
   f_individuals.addPFN(PFN('file://' + os.path.abspath('data/%s' % dataset) + '/' + base_file, 'local'))
   workflow.addFile(f_individuals)
 
+  c_num = base_file[base_file.find('chr')+3:]
+  c_num = c_num[0:c_num.find('.')]
+  c_nums.append(c_num)
+
   while counter < threshold:
-    c_num = base_file[base_file.find('chr')+3:]
-    c_num = c_num[0:c_num.find('.')]
     stop = counter + step
 
     out_name = 'chr%sn-%s-%s.tar.gz' % (c_num, counter, stop)
@@ -97,9 +102,10 @@ for row in datacsv:
   individuals_filename = 'chr%sn.tar.gz' % c_num
   f_chrn_merged = File(individuals_filename)
   individuals_files.append(f_chrn_merged)
-  j_individuals_merge.uses(f_chrn_merged, link=Link.OUTPUT, transfer=True)
+  j_individuals_merge.uses(f_chrn_merged, link=Link.OUTPUT, transfer=False)
 
   workflow.addJob(j_individuals_merge)
+  individuals_merge_jobs.append(j_individuals_merge)
 
   for job in individuals_jobs:
     workflow.depends(j_individuals_merge, job)
@@ -116,23 +122,29 @@ for row in datacsv:
 
   j_sifting = Job(name='sifting')
   j_sifting.uses(f_sifting, link=Link.INPUT)
-  j_sifting.uses(f_sifted, link=Link.OUTPUT, transfer=True)
+  j_sifting.uses(f_sifted, link=Link.OUTPUT, transfer=False)
   j_sifting.addArguments(f_sifting, c_num)
 
   workflow.addJob(j_sifting)
+  sifted_jobs.append(j_sifting)
 
 # Analyses jobs
-for f_ind in individuals_files:
-  for f_sifted in sifted_files:
-    for f_pop in populations:
-      # Mutation Overlap Job
-      j_mutation = Job(name='mutation-overlap')
-      j_mutation.addArguments('-c',c_num,'-pop',f_pop)
-      j_mutation.uses(f_ind, link=Link.INPUT)
-      j_mutation.uses(f_sifted, link=Link.INPUT)
-      j_mutation.uses(f_pop, link=Link.INPUT)
+for i in range(len(individuals_files)):
+  for f_pop in populations:
+    # Mutation Overlap Job
+    j_mutation = Job(name='mutation_overlap')
+    j_mutation.addArguments('-c', c_nums[i], '-pop', f_pop)
+    j_mutation.uses(individuals_files[i], link=Link.INPUT)
+    j_mutation.uses(sifted_files[i], link=Link.INPUT)
+    j_mutation.uses(f_pop, link=Link.INPUT)
+    j_mutation.uses(f_columns, link=Link.INPUT)
 
-      workflow.addJob(j_mutation)
+    f_mut_out = File('chr%s-%s.tar.gz' % (c_nums[i], f_pop.name))
+    j_mutation.uses(f_mut_out, link=Link.OUTPUT, transfer=True)
+    
+    workflow.addJob(j_mutation)
+    workflow.depends(j_mutation, individuals_merge_jobs[i])
+    workflow.depends(j_mutation, sifted_jobs[i])
 
 # Write the DAX to file
 f = open(daxfile, "w")
