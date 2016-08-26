@@ -2,6 +2,8 @@
 
 The workflow fetchs, parses, and analyzes data from the 1000 genomes project (ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/). It cross-matches the extracted data (which person has which mutations), with the mutation's sift score (how bad it is). Then it performs a few analyses, including plotting.
 
+The figure below shows a branch of the workflow for the analysis of a single chromossome.
+
 <img src="docs/images/1000genome.png?raw=true" width="450">
 
 Generating a Workflow
