@@ -6,6 +6,8 @@ The figure below shows a branch of the workflow for the analysis of a single chr
 
 <img src="docs/images/1000genome.png?raw=true" width="450">
 
+This workflow is based on the application described in: https://github.com/rosafilgueira/Mutation_Sets
+
 Generating a Workflow
 ---------------------
 ```
