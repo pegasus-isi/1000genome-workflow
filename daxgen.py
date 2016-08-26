@@ -36,6 +36,10 @@ e_mutation = Executable('mutation_overlap', arch='x86_64', installed=False)
 e_mutation.addPFN(PFN('file://' + base_dir + '/bin/mutation_overlap.py', 'local'))
 workflow.addExecutable(e_mutation)
 
+e_freq = Executable('frequency', arch='x86_64', installed=False)
+e_freq.addPFN(PFN('file://' + base_dir + '/bin/frequency.py', 'local'))
+workflow.addExecutable(e_freq)
+
 # Population Files
 populations = []
 for base_file in os.listdir('data/populations'):
@@ -145,6 +149,21 @@ for i in range(len(individuals_files)):
     workflow.addJob(j_mutation)
     workflow.depends(j_mutation, individuals_merge_jobs[i])
     workflow.depends(j_mutation, sifted_jobs[i])
+
+    # Frequency Mutations Overlap Job
+    j_freq = Job(name='frequency')
+    j_freq.addArguments('-c', c_nums[i], '-pop', f_pop)
+    j_freq.uses(individuals_files[i], link=Link.INPUT)
+    j_freq.uses(sifted_files[i], link=Link.INPUT)
+    j_freq.uses(f_pop, link=Link.INPUT)
+    j_freq.uses(f_columns, link=Link.INPUT)
+
+    f_freq_out = File('chr%s-%s-freq.tar.gz' % (c_nums[i], f_pop.name))
+    j_freq.uses(f_freq_out, link=Link.OUTPUT, transfer=True)
+
+    workflow.addJob(j_freq)
+    workflow.depends(j_freq, individuals_merge_jobs[i])
+    workflow.depends(j_freq, sifted_jobs[i])
 
 # Write the DAX to file
 f = open(daxfile, "w")
