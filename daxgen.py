@@ -50,8 +50,8 @@ for base_file in os.listdir('data/populations'):
 
 f = open(datafile)
 datacsv = csv.reader(f)
-step = 1500
-threshold = 15000
+step = 2000
+threshold = 40000
 c_nums = []
 individuals_files = []
 sifted_files = []
