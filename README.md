@@ -13,6 +13,7 @@ Generating a Workflow
 ```
 ./generate_dax.sh 1000genome.dax 20130502 data.csv
 ```
+This workflow assumes that all input data listed in the `data.csv` file is available in the `data/20130502` folder, for example.
 
 Running a Workflow
 -------------------
