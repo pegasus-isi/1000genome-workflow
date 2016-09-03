@@ -1,2 +1,2 @@
-ALL.chr21.100000.vcf,20000,ALL.chr21.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
-ALL.chr22.100000.vcf,20000,ALL.chr22.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr21.80000.vcf,10000,ALL.chr21.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr22.80000.vcf,10000,ALL.chr22.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
