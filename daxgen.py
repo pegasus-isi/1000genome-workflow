@@ -25,37 +25,36 @@ workflow = ADAG("1000genome-%s" % dataset)
 
 # Executables
 e_individuals = Executable('individuals', arch='x86_64', installed=False)
-e_individuals.addPFN(PFN('file://' + base_dir + '/bin/individuals', 'local'))
+e_individuals.addPFN(PFN('scp://adamant@master' + base_dir + '/bin/individuals', 'local'))
 workflow.addExecutable(e_individuals)
 
 e_individuals_merge = Executable('individuals_merge', arch='x86_64', installed=False)
-e_individuals_merge.addPFN(PFN('file://' + base_dir + '/bin/individuals_merge', 'local'))
+e_individuals_merge.addPFN(PFN('scp://adamant@master' + base_dir + '/bin/individuals_merge', 'local'))
 workflow.addExecutable(e_individuals_merge)
 
 e_sifting = Executable('sifting', arch='x86_64', installed=False)
-e_sifting.addPFN(PFN('file://' + base_dir + '/bin/sifting', 'local'))
+e_sifting.addPFN(PFN('scp://adamant@master' + base_dir + '/bin/sifting', 'local'))
 workflow.addExecutable(e_sifting)
 
 e_mutation = Executable('mutation_overlap', arch='x86_64', installed=False)
-e_mutation.addPFN(PFN('file://' + base_dir + '/bin/mutation_overlap.py', 'local'))
+e_mutation.addPFN(PFN('scp://adamant@master' + base_dir + '/bin/mutation_overlap.py', 'local'))
 workflow.addExecutable(e_mutation)
 
 e_freq = Executable('frequency', arch='x86_64', installed=False)
-e_freq.addPFN(PFN('file://' + base_dir + '/bin/frequency.py', 'local'))
+e_freq.addPFN(PFN('scp://adamant@master' + base_dir + '/bin/frequency.py', 'local'))
 workflow.addExecutable(e_freq)
 
 # Population Files
 populations = []
 for base_file in os.listdir('data/populations'):
   f_pop = File(base_file)
-  f_pop.addPFN(PFN('file://' + os.path.abspath('data/populations') + '/' + base_file, 'local'))
+  f_pop.addPFN(PFN('scp://adamant@master' + os.path.abspath('data/populations') + '/' + base_file, 'local'))
   workflow.addFile(f_pop)
   populations.append(f_pop)
 
 f = open(datafile)
 datacsv = csv.reader(f)
-step = 2000
-threshold = 40000
+step = 1000
 c_nums = []
 individuals_files = []
 sifted_files = []
@@ -64,14 +63,14 @@ individuals_merge_jobs = []
 
 for row in datacsv:
   base_file = row[0]
-  num_lines = int(row[1])
+  threshold = int(row[1])
   counter = 1
   individuals_jobs = []
   output_files = []
 
   # Individuals Jobs
   f_individuals = File(base_file)
-  f_individuals.addPFN(PFN('file://' + os.path.abspath('data/%s' % dataset) + '/' + base_file, 'local'))
+  f_individuals.addPFN(PFN('http://172.16.1.200/adamant/genome/data/' + dataset + '/' + base_file, 'compute'))
   workflow.addFile(f_individuals)
 
   c_num = base_file[base_file.find('chr')+3:]
@@ -126,7 +125,7 @@ for row in datacsv:
   j_sifting = Job(name='sifting')
   
   f_sifting = File(row[2])
-  f_sifting.addPFN(PFN('file://' + os.path.abspath('data/%s' % dataset) + '/sifting/' + row[2], 'local'))
+  f_sifting.addPFN(PFN('http://172.16.1.200/adamant/genome/data/' + dataset + '/sifting/' + row[2], 'compute'))
   workflow.addFile(f_sifting)
 
   f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)

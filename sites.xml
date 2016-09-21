@@ -10,12 +10,17 @@
         <directory type="local-storage" path="${PWD}/work/outputs">
             <file-server operation="all" url="file://${PWD}/work/outputs"/>
 	</directory>
+	<profile namespace="pegasus" key="SSH_PRIVATE_KEY" >/home/adamant/.ssh/id_rsa</profile>
     </site>
 
     <site handle="compute" arch="x86_64" os="LINUX">
         <!-- These profiles tell Pegasus that the site is a plain Condor pool -->
         <profile namespace="pegasus" key="style">condor</profile>
         <profile namespace="condor" key="universe">vanilla</profile>
+	<directory type="shared-scratch" path="/shared/scratch">
+            <file-server operation="all" url="file:///shared/scratch"/>
+        </directory>
+	<profile namespace="pegasus" key="SSH_PRIVATE_KEY" >/home/adamant/.ssh/id_rsa</profile>
     </site>
 
 </sitecatalog>

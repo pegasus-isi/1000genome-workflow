@@ -12,15 +12,19 @@ echo 'now processing chromosome '$c
 nfile='ALL.chr'$c'.individuals.vcf.gz'
 unzipped=${nfile%.*z}
 
-if [ ! -f $unzipped ]; then
-  mv $1 $nfile
+mv $1 $unzipped
+awk 'NR == 253  {print; exit}' $unzipped > columns.txt
 
-  ### step 1
-  echo 'unzipping '$nfile
-  time gunzip $nfile
-  echo 'unzipped file', $unzipped
-  awk 'NR == 253  {print; exit}' $unzipped > columns.txt
-fi
+
+#if [ ! -f $unzipped ]; then
+#  mv $1 $nfile
+#
+#  ### step 1
+#  echo 'unzipping '$nfile
+#  time gunzip $nfile
+#  echo 'unzipped file', $unzipped
+#  awk 'NR == 253  {print; exit}' $unzipped > columns.txt
+#fi
 
 ### step 2
 pdir='chr'$c'p/'

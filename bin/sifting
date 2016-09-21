@@ -4,12 +4,13 @@ input=$1
 c=$2
 
 newfile='ALL.chr'$c'.vcf.gz'
-mv $1 $newfile
+#mv $1 $newfile
 
-echo 'unzipping '$newfile
-gunzip $newfile
+#echo 'unzipping '$newfile
+#gunzip $newfile
 unzipped=${newfile%.*z}
-echo 'unziped file:', $unzipped
+#echo 'unziped file:', $unzipped
+mv $1 $unzipped
 
 siftfile='SIFT.chr'$c'.vcf'
 
