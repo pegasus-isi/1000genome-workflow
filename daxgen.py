@@ -6,13 +6,17 @@ from Pegasus.DAX3 import *
 
 # API Documentation: http://pegasus.isi.edu/documentation
 
-if len(sys.argv) != 4:
-    sys.stderr.write("Usage: %s DAXFILE DATASET DATACSV\n" % (sys.argv[0]))
+if len(sys.argv) != 8:
+    sys.stderr.write("Usage: %s DAXFILE DATASET DATACSV PRIORITY SITENAME\n" % (sys.argv[0]))
     exit(1)
 
 daxfile = sys.argv[1]
 dataset = sys.argv[2]
 datafile = sys.argv[3]
+user = sys.argv[4]
+passwd = sys.argv[5]
+priority = sys.argv[6]
+sitename = sys.argv[7]
 
 base_dir = os.path.abspath('.')
 
@@ -88,6 +92,10 @@ for row in datacsv:
     j_individuals.uses(f_chrn, link=Link.OUTPUT, transfer=False)
     j_individuals.uses(f_columns, link=Link.OUTPUT, transfer=False)
     j_individuals.addArguments(f_individuals, c_num, str(counter), str(stop), str(threshold))
+
+    # Pre-script (RabbitMQ)
+    j_individuals.addProfile(Profile(Namespace.DAGMAN, 'PRE', os.getcwd() + '/bin/rabbitmq'))
+    j_individuals.addProfile(Profile(Namespace.DAGMAN, 'PRE.ARGUMENTS', '%s %s %s %s' % (user, passwd, priority, sitename)))
 
     individuals_jobs.append(j_individuals)
     workflow.addJob(j_individuals)

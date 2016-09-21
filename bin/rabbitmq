@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+import pika
+import sys
+
+user = sys.argv[1]
+passwd = sys.argv[2]
+priority = sys.argv[3]
+sitename = sys.argv[4]
+
+connection = pika.BlockingConnection(pika.URLParameters('amqps://%s:%s@128.9.136.208:5671/panorama' % (user, passwd)))
+channel = connection.channel()
+
+# sending priority
+channel.basic_publish(exchange='priority', routing_key='workflow.priority', body='%s,%s' % (sitename, priority))
+
+
+# wait for authorization to run the job
+result = channel.queue_declare(exclusive=True)
+queue_name = result.method.queue
+
+binding_key = 'workflow.priority.%s.%s.ack' % (sitename, priority)
+print(binding_key)
+
+channel.queue_bind(exchange='priority', queue=queue_name, routing_key=binding_key)
+
+def callback(ch, method, properties, body):
+  print(" [x] %r:%r" % (method.routing_key, body))
+  connection.close()
+  exit(0)
+
+channel.basic_consume(callback, queue=queue_name, no_ack=True)
+channel.start_consuming()
+
