@@ -1,28 +1,73 @@
 #!/usr/bin/env python
 
+import json
 import pika
+import subprocess
 import sys
+import uuid
 
 user = sys.argv[1]
 passwd = sys.argv[2]
 priority = sys.argv[3]
 sitename = sys.argv[4]
+queue_name = 'testRequestQ'
+exchange_name = 'priority'
+binding_key = str(uuid.uuid4())
+
+# obtain slide ID
+cmd = 'neuca-get slice_name'
+process = subprocess.Popen(cmd, shell=True,
+                           stdout=subprocess.PIPE, 
+                           stderr=subprocess.PIPE)
+
+# wait for the process to terminate
+out, err = process.communicate()
+errcode = process.returncode
+if errcode != 0:
+    exit(1)
+slice_id = out.strip()
+
+# obtain wf uuid
+cmd = "grep 'root_wf_uuid' braindump.txt"
+process = subprocess.Popen(cmd, shell=True,
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+
+# wait for the process to terminate
+out, err = process.communicate()
+errcode = process.returncode
+if errcode != 0:
+    exit(1)
+wf_uuid = out.strip().split()[1]
+
+# binding key
+
+data = {}
+data['requestType'] = 'modifyNetwork'
+data['req_wfuuid'] = wf_uuid
+data['req_sliceID'] = slice_id
+data['req_endpointSrc'] = 'data'
+data['req_endpointDst'] = sitename
+data['req_flowPriority'] = priority
+data['req_bindingKey'] = binding_key
+data['req_exchange'] = exchange_name
+json_data = json.dumps(data)
 
 connection = pika.BlockingConnection(pika.URLParameters('amqps://%s:%s@128.9.136.208:5671/panorama' % (user, passwd)))
 channel = connection.channel()
+channel.queue_declare(queue=queue_name)
 
 # sending priority
-channel.basic_publish(exchange='priority', routing_key='workflow.priority', body='%s,%s' % (sitename, priority))
+channel.basic_publish(exchange='', routing_key=queue_name, body='%s' % json_data)
 
 
 # wait for authorization to run the job
 result = channel.queue_declare(exclusive=True)
 queue_name = result.method.queue
 
-binding_key = 'workflow.priority.%s.%s.ack' % (sitename, priority)
 print(binding_key)
 
-channel.queue_bind(exchange='priority', queue=queue_name, routing_key=binding_key)
+channel.queue_bind(exchange=exchange_name, queue=queue_name, routing_key=binding_key)
 
 def callback(ch, method, properties, body):
   print(" [x] %r:%r" % (method.routing_key, body))
@@ -31,4 +76,3 @@ def callback(ch, method, properties, body):
 
 channel.basic_consume(callback, queue=queue_name, no_ack=True)
 channel.start_consuming()
-
