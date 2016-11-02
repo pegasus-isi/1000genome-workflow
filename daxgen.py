@@ -3,25 +3,30 @@ import sys
 import os
 import csv
 from Pegasus.DAX3 import *
+from optparse import OptionParser
 
 # API Documentation: http://pegasus.isi.edu/documentation
 
-if len(sys.argv) != 8:
-    sys.stderr.write("Usage: %s DAXFILE DATASET DATACSV PRIORITY SITENAME\n" % (sys.argv[0]))
-    exit(1)
+# Options
+parser = OptionParser(usage="usage: %prog [options]", version="%prog 1.0")
 
-daxfile = sys.argv[1]
-dataset = sys.argv[2]
-datafile = sys.argv[3]
-user = sys.argv[4]
-passwd = sys.argv[5]
-priority = sys.argv[6]
-sitename = sys.argv[7]
+parser.add_option('-d', '--dax', action='store', dest='daxfile', default='1000genome.dax', help='DAX filename')
+parser.add_option('-D', '--dataset', action='store', dest='dataset', default='20130502', help='Dataset folder')
+parser.add_option('-f', '--datafile', action='store', dest='datafile', default='data.csv', help='Data file with list of input data')
+parser.add_option('-y', '--priority', action='store', dest='priority', default='70', help='Workflow Priority')
+parser.add_option('-s', '--site', action='store', dest='sitename', default='S1', help='Site name')
+parser.add_option('-u', '--user', action='store', dest='user', default='panorama', help='RabbitMQ username')
+parser.add_option('-p', '--passwd', action='store', dest='passwd', default='panorama', help='RabbitMQ password')
+parser.add_option('-H', '--host', action='store', dest='host', default='128.9.136.208', help='RabbitMQ hostname or IP')
+parser.add_option('-P', '--port', action='store', dest='port', default='5671', help='RabbitMQ port')
+parser.add_option('-n', '--no-ssl', action='store_false', dest='ssl', default=True, help='RabbitMQ SSL connection')
+
+(options, args) = parser.parse_args()
 
 base_dir = os.path.abspath('.')
 
 # Create a abstract dag
-workflow = ADAG("1000genome-%s" % dataset)
+workflow = ADAG("1000genome-%s" % options.dataset)
 
 # Executables
 e_individuals = Executable('individuals', arch='x86_64', installed=False)
@@ -52,7 +57,7 @@ for base_file in os.listdir('data/populations'):
   workflow.addFile(f_pop)
   populations.append(f_pop)
 
-f = open(datafile)
+f = open(options.datafile)
 datacsv = csv.reader(f)
 step = 1000
 c_nums = []
@@ -70,7 +75,7 @@ for row in datacsv:
 
   # Individuals Jobs
   f_individuals = File(base_file)
-  f_individuals.addPFN(PFN('http://172.16.1.200/adamant/genome/data/' + dataset + '/' + base_file, 'compute'))
+  f_individuals.addPFN(PFN('http://172.16.1.200/adamant/genome/data/' + options.dataset + '/' + base_file, 'compute'))
   workflow.addFile(f_individuals)
 
   c_num = base_file[base_file.find('chr')+3:]
@@ -94,7 +99,7 @@ for row in datacsv:
 
     # Pre-script (RabbitMQ)
     j_individuals.addProfile(Profile(Namespace.DAGMAN, 'PRE', os.getcwd() + '/bin/rabbitmq'))
-    j_individuals.addProfile(Profile(Namespace.DAGMAN, 'PRE.ARGUMENTS', '%s %s %s %s' % (user, passwd, priority, sitename)))
+    j_individuals.addProfile(Profile(Namespace.DAGMAN, 'PRE.ARGUMENTS', '%s %s %s %s %s %s %s' % (options.user, options.passwd, options.priority, options.sitename, options.host, options.port, options.ssl)))
 
     individuals_jobs.append(j_individuals)
     workflow.addJob(j_individuals)
@@ -125,7 +130,7 @@ for row in datacsv:
   j_sifting = Job(name='sifting')
   
   f_sifting = File(row[2])
-  f_sifting.addPFN(PFN('http://172.16.1.200/adamant/genome/data/' + dataset + '/sifting/' + row[2], 'compute'))
+  f_sifting.addPFN(PFN('http://172.16.1.200/adamant/genome/data/' + options.dataset + '/sifting/' + row[2], 'compute'))
   workflow.addFile(f_sifting)
 
   f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)
@@ -173,6 +178,6 @@ for i in range(len(individuals_files)):
     workflow.depends(j_freq, sifted_jobs[i])
 
 # Write the DAX to file
-f = open(daxfile, "w")
+f = open(options.daxfile, "w")
 workflow.writeXML(f)
 f.close()
