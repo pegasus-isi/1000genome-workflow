@@ -22,9 +22,9 @@ This workflow is based on the application described in: https://github.com/rosaf
 Generating a Workflow
 ---------------------
 ```
-./generate_dax.sh 1000genome.dax 20130502 data.csv rabbitmq_user rabbitmq_passwd 70 site-1
+./generate_dax.sh -d 1000genome.dax -D 20130502 -f data.csv -y 70 -s site-1 -u rabbitmq_user -p rabbitmq_passwd -H rabbitmq_host -P rabbitmq_port
 ```
-This workflow assumes that all input data listed in the `data.csv` file is available in the `data/20130502` folder, for example.
+This workflow assumes that all input data listed in the `data.csv` file is available in the `data/20130502` folder, for example. To see the list of all options available, run `./generate_dax.sh -h`
 
 Running a Workflow
 -------------------
