@@ -47,14 +47,15 @@ cd ../../..
 ```
 
 ### Generating a workflow DAX
+
 ```
 ./generate_dax.sh -d 1000genome.dax -D 20130502 -f data.csv
 ```
 
 This workflow assumes that all input data listed in the `data.csv` file is available in the `data/20130502` folder, for example. To see the list of all options available, run `./generate_dax.sh -h`
 
-Running a Workflow
--------------------
+### Running a Workflow
+
 ```
 ./plan_dax.sh 1000genome.dax
 ```
