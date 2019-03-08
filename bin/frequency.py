@@ -19,7 +19,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import itertools
 import argparse
 from pylab import pcolor, show, colorbar, xticks, yticks
-from matplotlib import mpl,pyplot
+from matplotlib import pyplot
+import matplotlib as mpl
 
 c_help = 'type a chromosome 1-22'
 pop_help = 'type a population 0-6; 0:ALL, 1:EUR, 2:EAS, 3:AFR, 4:AMR, 5:SAS, 6:GBR'
@@ -138,7 +139,7 @@ class Results :
 			result = Counter()
 			r_ids=[]
 			for pq in range(n_indiv):
-				if 2*pq > len(randomized_list):
+				if 2*pq >= len(randomized_list):
 					break
 				b_multiset = collections.Counter(mutation_index_array[randomized_list[2*pq]])
 				print('time, inidividual: %s' % ids[randomized_list[2*pq]])

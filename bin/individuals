@@ -13,7 +13,7 @@ nfile='ALL.chr'$c'.individuals.vcf.gz'
 unzipped=${nfile%.*z}
 
 mv $1 $unzipped
-awk 'NR == 253  {print; exit}' $unzipped > columns.txt
+#awk 'NR == 253  {print; exit}' $unzipped > columns.txt
 
 
 #if [ ! -f $unzipped ]; then
@@ -63,10 +63,13 @@ rm AF_value.$c
 ### step 5
 rm $unzipped
 
+prev_dir=$(pwd)
 cd $ndir
 
 outputfile='chr'$c'n-'$counter'-'$stop'.tar.gz'
 tar -zcf ../$outputfile .
+
+cd $prev_dir
 
 rm -rf $ndir
 rm -rf $pdir

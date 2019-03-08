@@ -18,7 +18,8 @@ import itertools
 import argparse
 #import seaborn as sns
 from pylab import pcolor, show, colorbar, xticks, yticks
-from matplotlib import mpl,pyplot
+from matplotlib import pyplot
+import matplotlib as mpl
 import collections
 from collections import Counter
 

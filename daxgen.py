@@ -2,6 +2,7 @@
 import sys
 import os
 import csv
+from datetime import datetime
 from Pegasus.DAX3 import *
 from optparse import OptionParser
 
@@ -19,7 +20,9 @@ parser.add_option('-f', '--datafile', action='store', dest='datafile', default='
 base_dir = os.path.abspath('.')
 
 # Create a abstract dag
-workflow = ADAG("1000genome-%s" % options.dataset)
+ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+#workflow = ADAG("1000genome-%s" % options.dataset)
+workflow = ADAG("1000genome-%s" % ts)
 
 # Executables
 e_individuals = Executable('individuals', arch='x86_64', installed=False)
@@ -42,11 +45,15 @@ e_freq = Executable('frequency', arch='x86_64', installed=False)
 e_freq.addPFN(PFN('file://' + base_dir + '/bin/frequency.py', 'local'))
 workflow.addExecutable(e_freq)
 
+f_columns = File('columns.txt')
+f_columns.addPFN(PFN('file://' + base_dir + '/data/' + options.dataset + '/columns.txt', 'condorpool'))
+workflow.addFile(f_columns)
+
 # Population Files
 populations = []
 for base_file in os.listdir('data/populations'):
   f_pop = File(base_file)
-  f_pop.addPFN(PFN('file://' + os.path.abspath('data/populations') + '/' + base_file, 'local'))
+  f_pop.addPFN(PFN('file://' + base_dir + '/data/populations' + '/' + base_file, 'local'))
   workflow.addFile(f_pop)
   populations.append(f_pop)
 
@@ -68,7 +75,7 @@ for row in datacsv:
 
   # Individuals Jobs
   f_individuals = File(base_file)
-  f_individuals.addPFN(PFN('file://' + base_dir + '/data/' + options.dataset + '/' + base_file, 'local'))
+  f_individuals.addPFN(PFN('file://' + base_dir + '/data/' + options.dataset + '/' + base_file, 'condorpool'))
   workflow.addFile(f_individuals)
 
   c_num = base_file[base_file.find('chr')+3:]
@@ -82,12 +89,10 @@ for row in datacsv:
     output_files.append(out_name)
     f_chrn = File(out_name)
 
-    f_columns = File('columns.txt')
-
     j_individuals = Job(name='individuals')
     j_individuals.uses(f_individuals, link=Link.INPUT)
-    j_individuals.uses(f_chrn, link=Link.OUTPUT, transfer=False)
-    j_individuals.uses(f_columns, link=Link.OUTPUT, transfer=False)
+    j_individuals.uses(f_columns, link=Link.INPUT)
+    j_individuals.uses(f_chrn, link=Link.OUTPUT, transfer=False, register=False)
     j_individuals.addArguments(f_individuals, c_num, str(counter), str(stop), str(threshold))
 
     individuals_jobs.append(j_individuals)
@@ -107,7 +112,7 @@ for row in datacsv:
   individuals_filename = 'chr%sn.tar.gz' % c_num
   f_chrn_merged = File(individuals_filename)
   individuals_files.append(f_chrn_merged)
-  j_individuals_merge.uses(f_chrn_merged, link=Link.OUTPUT, transfer=False)
+  j_individuals_merge.uses(f_chrn_merged, link=Link.OUTPUT, transfer=False, register=False)
 
   workflow.addJob(j_individuals_merge)
   individuals_merge_jobs.append(j_individuals_merge)
@@ -119,7 +124,7 @@ for row in datacsv:
   j_sifting = Job(name='sifting')
   
   f_sifting = File(row[2])
-  f_sifting.addPFN(PFN('file://' + base_dir + '/data/' + options.dataset + '/sifting/' + row[2], 'local'))
+  f_sifting.addPFN(PFN('file://' + base_dir +'/data/' + options.dataset + '/sifting/' + row[2], 'condorpool'))
   workflow.addFile(f_sifting)
 
   f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)
@@ -127,7 +132,7 @@ for row in datacsv:
 
   j_sifting = Job(name='sifting')
   j_sifting.uses(f_sifting, link=Link.INPUT)
-  j_sifting.uses(f_sifted, link=Link.OUTPUT, transfer=False)
+  j_sifting.uses(f_sifted, link=Link.OUTPUT, transfer=False, register=False)
   j_sifting.addArguments(f_sifting, c_num)
 
   workflow.addJob(j_sifting)
@@ -145,7 +150,7 @@ for i in range(len(individuals_files)):
     j_mutation.uses(f_columns, link=Link.INPUT)
 
     f_mut_out = File('chr%s-%s.tar.gz' % (c_nums[i], f_pop.name))
-    j_mutation.uses(f_mut_out, link=Link.OUTPUT, transfer=True)
+    j_mutation.uses(f_mut_out, link=Link.OUTPUT, transfer=True, register=False)
     
     workflow.addJob(j_mutation)
     workflow.depends(j_mutation, individuals_merge_jobs[i])
@@ -160,7 +165,7 @@ for i in range(len(individuals_files)):
     j_freq.uses(f_columns, link=Link.INPUT)
 
     f_freq_out = File('chr%s-%s-freq.tar.gz' % (c_nums[i], f_pop.name))
-    j_freq.uses(f_freq_out, link=Link.OUTPUT, transfer=True)
+    j_freq.uses(f_freq_out, link=Link.OUTPUT, transfer=True, register=False)
 
     workflow.addJob(j_freq)
     workflow.depends(j_freq, individuals_merge_jobs[i])
