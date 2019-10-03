@@ -39,7 +39,12 @@ columfile='columns.txt'
 echo "total number of lines "$total
 
 echo "  processing from $counter to $stop"
-time sed -n "$counter"','"$stop"'p;'"$total"'q' $unzipped | grep -ve "#" | awk -v c=$c '{for(i=10;i<=2513;i++) {name="chr"c"p/chr"c".p"i-9;print $i"   "$2"    "$3"    "$4"    "$5"    "$8 >> name}}'
+#time sed -n "$counter"','"$stop"'p;'"$total"'q' $unzipped | grep -ve "#" | awk -v c=$c '{for(i=10;i<=2513;i++) {name="chr"c"p/chr"c".p"i-9;print $i"   "$2"    "$3"    "$4"    "$5"    "$8 >> name}}'
+sed -n "$counter"','"$stop"'p;'"$total"'q' $unzipped > bb
+grep -ve "#" bb > cc
+awk -v c=$c '{for(i=10;i<=2513;i++) {name="chr"c"p/chr"c".p"i-9;print $i"   "$2"    "$3"    "$4"    "$5"    "$8 >> name}}' cc
+rm -rf bb
+rm -rf cc
 
 for i in {1..2504}
 do
