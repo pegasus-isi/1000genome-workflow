@@ -1,2 +1,10 @@
-ALL.chr21.100000.vcf,10000,ALL.chr21.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
-ALL.chr22.100000.vcf,10000,ALL.chr22.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr1.250000.vcf,250000,ALL.chr1.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr2.250000.vcf,250000,ALL.chr2.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr3.250000.vcf,250000,ALL.chr3.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr4.250000.vcf,250000,ALL.chr4.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr5.250000.vcf,250000,ALL.chr5.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr6.250000.vcf,250000,ALL.chr6.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr7.250000.vcf,250000,ALL.chr7.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr8.250000.vcf,250000,ALL.chr8.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr9.250000.vcf,250000,ALL.chr9.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
+ALL.chr10.250000.vcf,250000,ALL.chr10.phase3_shapeit2_mvncall_integrated_v5.20130502.sites.annotation.vcf
