@@ -1,5 +1,5 @@
 #!/bin/bash  
-
+#set -x
 inputfile=$1
 c=$2
 counter=$3
