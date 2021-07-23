@@ -23,6 +23,9 @@ def readfile(file):
 def processing(columfile, inputfile, c, counter, stop, total):
     print('= Now processing chromosome: {}'.format(c))
 
+    counter = int(counter)
+    ending = int(min(stop, total))
+
     ### step 0
     nfile = 'ALL.chr{}.individuals.vcf.gz'.format(c)
     unzipped = os.path.splitext(nfile)[0] # Remove .gz
@@ -30,14 +33,16 @@ def processing(columfile, inputfile, c, counter, stop, total):
     if not os.path.exists(unzipped):
         decompress(nfile, unzipped)
 
-    data = readfile(unzipped)
+    rawdata = readfile(unzipped)
 
     ### step 2
     pdir = 'chr{}p/'.format(c)
     ndir = 'chr{}n/'.format(c)
 
     # mkdir -p $pdir
+    os.makedirs(pdir, exist_ok=True)
     # mkdir -p $ndir
+    os.makedirs(ndir, exist_ok=True)
 
     ### step 3
     # In the bash version, counter started at 1 but in Python we start at 0. 
@@ -48,18 +53,32 @@ def processing(columfile, inputfile, c, counter, stop, total):
     # We consider the line from counter to stop and we don't over total, then we remove lines starting with '#'
     #sed -n "$counter"','"$stop"'p;'"$total"'q' $unzipped | grep -ve "#" > cc
     regex = re.compile('(?!#)')
-    chunk = list(filter(regex.match, data[counter:min(stop, total)]))
+    # print(counter, min(stop, total), data[int(counter):int(min(stop, total))] )
+    data = list(filter(regex.match, rawdata[counter:ending]))
+    data = [x.rstrip('\n') for x in data] # Remove \n from words 
 
-    ### Stopped here
-    # for i in {10..2513}
-    # do
-    #     while read l
-    #     do
-    #         first =`echo $l | cut - d - f$i`
-    #         second =`echo $l | cut - d - f 2, 3, 4, 5, 8 - -output-delimiter = '   '`
-    #         echo "$first    $second" >> chr${c}p/chr${c}.p$((i - 9))
-    #     done < cc
-    # done
+    ### Stopped here 
+    start_data = 9  # where the real data start, the first 0|1, 1|1, 1|0 or 0|0
+    # position of the last element (normally equals to len(data[0].split(' '))
+    end_data = 2513
+    # end_data = 15
+
+    for i in range(start_data, end_data+1):
+        filename = "chr{}p/chr{}.p{}".format(c, c, i - start_data + 1)
+        print("=== Writing file {}".format(filename))
+        with open(filename, 'w') as f:
+            for line in data:
+                #print(i, line.split('\t'))
+                first = line.split('\t')[i]  # first =`echo $l | cut -d -f$i`
+                #second =`echo $l | cut -d -f 2, 3, 4, 5, 8 --output-delimiter = '   '`
+                second = line.split('\t')[0:8]
+                # We select the one we want
+                second = '   '.join([elem for id, elem in enumerate(
+                    second) if id in [1, 2, 3, 4, 7]])
+                #echo "$first    $second" >> chr${c}p/chr${c}.p$((i - 9))
+                f.write("{}    {}\n".format(first, second))
+
+
 
 if __name__ == "__main__":
     inputfile = sys.argv[1]
@@ -70,4 +89,4 @@ if __name__ == "__main__":
     columfile = 'columns.txt'
 
     processing(inputfile, columfile, c, counter, stop, total)
-   
+
