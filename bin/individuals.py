@@ -5,6 +5,7 @@ import sys
 import re
 import time
 import tarfile
+import shutil
 
 def make_tarfile(output_filename, source_dir):
     with tarfile.open(output_filename, "w:gz") as tar:
@@ -101,6 +102,13 @@ def processing(inputfile, columfile, c, counter, stop, total):
 
     # tar -zcf .. /$outputfile .
     make_tarfile(outputfile, ndir)
+
+    # Cleaning temporary files
+    try:
+        shutil.rmtree(ndir)
+    except OSError as e:
+        print("Error: %s : %s" % (ndir, e.strerror))
+
     print("= Chromosome {} processed in {:0.2f} seconds.".format(c, time.perf_counter() - tic))
 
 if __name__ == "__main__":
