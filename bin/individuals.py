@@ -2,19 +2,13 @@
 
 import os
 import sys
-import gzip
 import re
-import shutil
+import time
+import tarfile
 
-def compress(src, dest):
-    with open(src, 'rw') as s, open(dest, 'wb', encoding='utf8') as d:
-        data = gzip.compress(s.read().decode('utf-8'))
-        d.write(dest)
-
-def decompress(src, dest):
-    with open(src, 'rb') as s, open(dest, 'w', encoding='utf8') as d:
-        data = gzip.decompress(s.read()).decode('utf-8')
-        d.write(dest)
+def make_tarfile(output_filename, source_dir):
+    with tarfile.open(output_filename, "w:gz") as tar:
+        tar.add(source_dir, arcname=os.path.basename(source_dir))
 
 def readfile(file):
     with open(file, 'r') as f:
@@ -23,6 +17,7 @@ def readfile(file):
 
 def processing(inputfile, columfile, c, counter, stop, total):
     print('= Now processing chromosome: {}'.format(c))
+    tic = time.perf_counter()
 
     counter = int(counter)
     ending = int(min(stop, total))
@@ -39,12 +34,7 @@ def processing(inputfile, columfile, c, counter, stop, total):
     rawdata = readfile(inputfile)
 
     ### step 2
-    # pdir = 'py-chr{}p/'.format(c)
     ndir = 'py-chr{}n/'.format(c)
-
-    # mkdir -p $pdir
-    # os.makedirs(pdir, exist_ok=True)
-    # mkdir -p $ndir
     os.makedirs(ndir, exist_ok=True)
 
     ### step 3
@@ -60,25 +50,28 @@ def processing(inputfile, columfile, c, counter, stop, total):
     data = list(filter(regex.match, rawdata[counter:ending]))
     data = [x.rstrip('\n') for x in data] # Remove \n from words 
 
-    start_data = 9  # where the real data start, the first 0|1, 1|1, 1|0 or 0|0
-    # position of the last element (normally equals to len(data[0].split(' '))
-    end_data = 2513
-    # end_data = 14
-
     chrp_data = {}
     columndata = readfile(columfile)[0].rstrip('\n').split('\t')
 
-    for i in range(start_data, end_data+1):
-        name = columndata[i]
+    start_data = 9  # where the real data start, the first 0|1, 1|1, 1|0 or 0|0
+    # position of the last element (normally equals to len(data[0].split(' '))
+    #end_data = 2504
+    end_data = len(columndata) - start_data
+    print("== Number of columns {}".format(end_data))
+
+    for i in range(0, end_data):
+        col = i + start_data
+        name = columndata[col]
 
         filename = "{}/chr{}.{}".format(ndir, c, name)
-        print("=== Writing file {}".format(filename))
-        chrp_data[i - start_data] = []
+        print("=== Writing file {}".format(filename), end=" => ")
+        tic_iter = time.perf_counter()
+        chrp_data[i] = []
 
         with open(filename, 'w') as f:
             for line in data:
                 #print(i, line.split('\t'))
-                first = line.split('\t')[i]  # first =`echo $l | cut -d -f$i`
+                first = line.split('\t')[col]  # first =`echo $l | cut -d -f$i`
                 #second =`echo $l | cut -d -f 2, 3, 4, 5, 8 --output-delimiter = '   '`
                 second = line.split('\t')[0:8]
                 # We select the one we want
@@ -91,44 +84,24 @@ def processing(inputfile, columfile, c, counter, stop, total):
                 elem = first.split('|')
                 # We skip some lines that do not meet these conditions
                 if af_value >= 0.5 and (elem[0] == '0'):
-                    chrp_data[i-start_data].append(second)
+                    chrp_data[i].append(second)
                 elif af_value < 0.5 and (elem[0] == '1'):
-                    chrp_data[i-start_data].append(second)
+                    chrp_data[i].append(second)
                 else:
                     continue
                 
                 f.write("{0}        {1}    {2}    {3}    {4}\n".format(
                     second[0], second[1], second[2],second[3],second[4])
                 )
+        print("processed in {:0.2f} sec".format(time.perf_counter()-tic_iter))
 
-
-                # chrp_data[i-start_data].append([first]+second)
-
-                #echo "$first    $second" >> chr${c}p/chr${c}.p$((i - 9))
-                # f.write("{}    {}\n".format(first, '   '.join(second)))
-
-
-    # start = 0
-    # end = 2504
-    # end = 10
     
-    # result = {}
-    # for i in range(start, end+1):
-    #     # col=$(($i + 9))
-    #     col = i + 9
-    #     #name =$(cut -f $col $columfile)
-    #     name = columndata[col]
-    #     #oldfile =$pdir'chr'$c'.p'$i
-    #     oldfile = "{}/chr{}.p{}".format(pdir, c, i)
-    #     #newfile =$ndir'chr'$c'.'$name
-    #     newfile = "{}/chr{}.p{}".format(ndir, c, name)
-    #     # cat $oldfile | awk '{print $6}' | awk - F ";" '{print $9}' | awk - F"=" '{print $2}' > AF_value.$c
-    #     result[i] = {'AF_value': []}
-        
-    #     for line in chrp_data[i]:
-    #         af_value = line[5].split(';')[8].split('=')[1]
-    #         result[i]['AF_value'].append(af_value)
+    outputfile = "py-chr{}n-{}-{}.tar.gz".format(c, counter, stop)
+    print("== Done. Zipping {} files into {}.".format(end_data, outputfile))
 
+    # tar -zcf .. /$outputfile .
+    make_tarfile(outputfile, ndir)
+    print("= Chromosome {} processed in {:0.2f} seconds.".format(c, time.perf_counter() - tic))
 
 if __name__ == "__main__":
     inputfile = sys.argv[1]
