@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -7,9 +7,10 @@ import time
 import tarfile
 import shutil
 
-def make_tarfile(output_filename, source_dir):
-    with tarfile.open(output_filename, "w:gz") as tar:
-        tar.add(source_dir, arcname=os.path.basename(source_dir))
+
+def compress(output, input_dir):
+    with tarfile.open(output, "w:gz") as file:
+        file.add(input_dir, arcname=os.path.basename(input_dir))
 
 def readfile(file):
     with open(file, 'r') as f:
@@ -35,7 +36,7 @@ def processing(inputfile, columfile, c, counter, stop, total):
     rawdata = readfile(inputfile)
 
     ### step 2
-    ndir = 'py-chr{}n/'.format(c)
+    ndir = 'chr{}n/'.format(c)
     os.makedirs(ndir, exist_ok=True)
 
     ### step 3
@@ -84,9 +85,9 @@ def processing(inputfile, columfile, c, counter, stop, total):
                 
                 elem = first.split('|')
                 # We skip some lines that do not meet these conditions
-                if af_value >= 0.5 and (elem[0] == '0'):
+                if af_value >= 0.5 and elem[0] == '0':
                     chrp_data[i].append(second)
-                elif af_value < 0.5 and (elem[0] == '1'):
+                elif af_value < 0.5 and elem[0] == '1':
                     chrp_data[i].append(second)
                 else:
                     continue
@@ -94,14 +95,14 @@ def processing(inputfile, columfile, c, counter, stop, total):
                 f.write("{0}        {1}    {2}    {3}    {4}\n".format(
                     second[0], second[1], second[2],second[3],second[4])
                 )
+
         print("processed in {:0.2f} sec".format(time.perf_counter()-tic_iter))
 
-    
-    outputfile = "py-chr{}n-{}-{}.tar.gz".format(c, counter, stop)
+    outputfile = "chr{}n-{}-{}.tar.gz".format(c, counter, stop)
     print("== Done. Zipping {} files into {}.".format(end_data, outputfile))
 
     # tar -zcf .. /$outputfile .
-    make_tarfile(outputfile, ndir)
+    compress(outputfile, ndir)
 
     # Cleaning temporary files
     try:
@@ -125,4 +126,3 @@ if __name__ == "__main__":
             counter=counter, 
             stop=stop,
             total=total)
-

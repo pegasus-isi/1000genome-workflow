@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 c=$1
 
 mkdir -p merged
@@ -11,7 +11,7 @@ do
   mv $data tmp/
   cd tmp
   tar zxf $data
-  rm -rf $data
+  #rm -rf $data
   for f in *
   do
     cat $f >> ../merged/$f
@@ -26,4 +26,4 @@ echo "Creating merged file $outputfile..."
 tar -zcf ../$outputfile .
 
 cd ..
-rm -rf merged
+#rm -rf merged

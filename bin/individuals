@@ -85,7 +85,7 @@ rm AF_value.$c
 rm cc
 
 ### step 5
-#rm $unzipped
+rm $unzipped
 
 prev_dir=$(pwd)
 cd $ndir
