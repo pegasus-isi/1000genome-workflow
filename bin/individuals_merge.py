@@ -2,7 +2,6 @@
 
 import os
 import sys
-import re
 import time
 import tarfile
 import shutil

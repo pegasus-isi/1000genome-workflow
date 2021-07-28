@@ -11,10 +11,11 @@ newfile='ALL.chr'$c'.vcf.gz'
 unzipped=${newfile%.*z}
 #echo 'unziped file:', $unzipped
 mv $1 $unzipped
-
+set -x
 siftfile='SIFT.chr'$c'.vcf'
 
 header=$(head -n 1000 $unzipped | grep "#" | wc -l)
+echo $header
 
 echo 'taking columns from '$unzipped
 grep -n "deleterious\|tolerated" $unzipped | grep "rs" > $siftfile
@@ -30,13 +31,13 @@ awk '{print $8}' $siftfile > $info #.txt
 awk -F "|" '{print $5"\t"$17"\t"$18}' $info | sed 's/(/\t/g' | sed 's/)//g' > $sifts
 
 final='sifted.SIFT.chr'$c'.txt'
-pr -m -t -s\ $lines $ids $sifts | gawk '{print $1,$2,$3,$5,$7}' > $final
+pr -m -t -s $lines $ids $sifts | gawk '{print $1,$2,$3,$5,$7}' > $final
 
 echo 'line, id, ENSG id, SIFT, and phenotype printed to '$final
 
-rm $siftfile
-rm $lines
-rm $ids
-rm $info
-rm $sifts
-rm $unzipped
+# rm $siftfile
+# rm $lines
+# rm $ids
+# rm $info
+# rm $sifts
+# rm $unzipped
