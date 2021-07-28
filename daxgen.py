@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 import csv
@@ -14,6 +14,7 @@ parser = OptionParser(usage="usage: %prog [options]", version="%prog 1.0")
 parser.add_option('-d', '--dax', action='store', dest='daxfile', default='1000genome.dax', help='DAX filename')
 parser.add_option('-D', '--dataset', action='store', dest='dataset', default='20130502', help='Dataset folder')
 parser.add_option('-f', '--datafile', action='store', dest='datafile', default='data.csv', help='Data file with list of input data')
+parser.add_option('-b', '--bash-jobs', action='store_true', dest='use_bash', help='Use original bash scripts for individuals, individuals_merge and sifting')
 
 (options, args) = parser.parse_args()
 
@@ -24,17 +25,23 @@ ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 #workflow = ADAG("1000genome-%s" % options.dataset)
 workflow = ADAG("1000genome-%s" % ts)
 
+suffix = ".py"
+
+if options.use_bash:
+  suffix = ""
+
 # Executables
 e_individuals = Executable('individuals', arch='x86_64', installed=False)
-e_individuals.addPFN(PFN('file://' + base_dir + '/bin/individuals', 'local'))
+e_individuals.addPFN(PFN('file://' + base_dir + '/bin/individuals'+suffix, 'local'))
 workflow.addExecutable(e_individuals)
 
 e_individuals_merge = Executable('individuals_merge', arch='x86_64', installed=False)
-e_individuals_merge.addPFN(PFN('file://' + base_dir + '/bin/individuals_merge', 'local'))
+e_individuals_merge.addPFN(
+    PFN('file://' + base_dir + '/bin/individuals_merge'+suffix, 'local'))
 workflow.addExecutable(e_individuals_merge)
 
 e_sifting = Executable('sifting', arch='x86_64', installed=False)
-e_sifting.addPFN(PFN('file://' + base_dir + '/bin/sifting', 'local'))
+e_sifting.addPFN(PFN('file://' + base_dir + '/bin/sifting'+suffix, 'local'))
 workflow.addExecutable(e_sifting)
 
 e_mutation = Executable('mutation_overlap', arch='x86_64', installed=False)
