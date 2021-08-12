@@ -36,7 +36,9 @@ def processing(inputfile, columfile, c, counter, stop, total):
     rawdata = readfile(inputfile)
 
     ### step 2
-    ndir = 'chr{}n/'.format(c)
+    #ndir = 'chr{}n/'.format(c)
+    ##orc@12-08: giving a diff dir name (chromosome no-counter) for each individuals job
+    ndir = 'chr{}n-{}/'.format(c,counter)
     os.makedirs(ndir, exist_ok=True)
 
     ### step 3
