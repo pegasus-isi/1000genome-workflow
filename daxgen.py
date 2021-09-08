@@ -15,8 +15,16 @@ parser.add_option('-d', '--dax', action='store', dest='daxfile', default='1000ge
 parser.add_option('-D', '--dataset', action='store', dest='dataset', default='20130502', help='Dataset folder')
 parser.add_option('-f', '--datafile', action='store', dest='datafile', default='data.csv', help='Data file with list of input data')
 parser.add_option('-b', '--bash-jobs', action='store_true', dest='use_bash', help='Use original bash scripts for individuals, individuals_merge and sifting')
+parser.add_option('-i', '--ind-jobs', action='store', dest='ind_jobs', type=int, default=250,
+                  help='Number of individuals jobs that will be created for each chromosome \
+                  (if larger than the total number of rows in the data for that chromosome, \
+                  then it will be set to the number of rows so each job will process one row)')
+
 
 (options, args) = parser.parse_args()
+
+# Sanity check to ensure it is an integer and a positive one
+options.ind_jobs = max(int(options.ind_jobs), 1)
 
 base_dir = os.path.abspath('.')
 
@@ -66,7 +74,7 @@ for base_file in os.listdir('data/populations'):
 
 f = open(options.datafile)
 datacsv = csv.reader(f)
-step = 1000
+#step = 1000
 c_nums = []
 individuals_files = []
 sifted_files = []
@@ -76,9 +84,18 @@ individuals_merge_jobs = []
 for row in datacsv:
   base_file = row[0]
   threshold = int(row[1])
+  # To ensure we do not create too many individuals jobs
+  ind_jobs = min(options.ind_jobs, threshold)
+  step = threshold // ind_jobs
+  rest = threshold % ind_jobs
+  if rest != 0: 
+    sys.exit("ERROR: for file {}: required individuals jobs {} does not divide the number of rows {}.".format(base_file, ind_jobs, threshold))
+
   counter = 1
+
   individuals_jobs = []
   output_files = []
+  print(base_file, threshold, ind_jobs, step)
 
   # Individuals Jobs
   f_individuals = File(base_file)
@@ -91,6 +108,7 @@ for row in datacsv:
 
   while counter < threshold:
     stop = counter + step
+    #add the extra line to the first job
 
     out_name = 'chr%sn-%s-%s.tar.gz' % (c_num, counter, stop)
     output_files.append(out_name)
