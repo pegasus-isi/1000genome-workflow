@@ -95,7 +95,6 @@ for row in datacsv:
 
   individuals_jobs = []
   output_files = []
-  print(base_file, threshold, ind_jobs, step)
 
   # Individuals Jobs
   f_individuals = File(base_file)
@@ -108,7 +107,6 @@ for row in datacsv:
 
   while counter < threshold:
     stop = counter + step
-    #add the extra line to the first job
 
     out_name = 'chr%sn-%s-%s.tar.gz' % (c_num, counter, stop)
     output_files.append(out_name)

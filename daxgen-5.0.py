@@ -61,7 +61,7 @@ class GenomeWorkflow(object):
 
         # Population Files
         self.populations = []
-        for base_file in os.listdir(self.wf_dir + 'data/populations'):
+        for base_file in os.listdir(self.wf_dir + 'data/populations/'):
           f_pop = File(base_file)
           self.populations.append(f_pop)
 
@@ -321,15 +321,14 @@ class GenomeWorkflow(object):
                 individuals_filename = 'chr%sn.tar.gz' % c_num
                 f_chrn_merged = File(individuals_filename)
                 individuals_files.append(f_chrn_merged)
-                j_individuals_merge.add_outputs(
-                    f_chrn_merged, stage_out=False, register_replica=False)
+                j_individuals_merge.add_outputs(f_chrn_merged, stage_out=False, register_replica=False)
 
                 self.wf.add_jobs(j_individuals_merge)
                 individuals_merge_jobs.append(j_individuals_merge)
 
                 # Sifting Job
                 f_sifting = File(row[2])
-                self.rc.add_replica(site=self.exec_site, lfn=f_individuals, pfn=self.wf_dir +
+                self.rc.add_replica(site=self.exec_site, lfn=f_sifting, pfn=self.wf_dir +
                                     '/data/' + self.dataset + '/sifting/' + f_sifting.lfn)
 
                 f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)
@@ -381,7 +380,7 @@ class GenomeWorkflow(object):
                 cleanup="leaf",
                 force=True,
                 submit=submit,
-                verbose=3
+                verbose=0
             )
             if wait:
                 self.wf.wait()
