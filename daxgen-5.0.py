@@ -10,7 +10,7 @@ from pathlib import Path
 
 from Pegasus.api import *
 
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 # --- Import Pegasus API ------------------------------------------------------
 
@@ -47,7 +47,10 @@ class GenomeWorkflow(object):
         self.exec_site = exec_site
         self.columns = File(columns)
         self.ind_jobs = ind_jobs
-
+        self.file_site = "local"
+        if self.exec_site == "cori":
+            self.file_site = "cori"
+        
         self.suffix = ".py"
         if use_bash:
             self.suffix = ""
@@ -243,15 +246,11 @@ class GenomeWorkflow(object):
     def create_replica_catalog(self) -> None:
         self.rc = ReplicaCatalog()
 
-        file_site = "local"
-        if self.exec_site == "cori":
-            file_site = "cori"
-
-        self.rc.add_replica(site=file_site, lfn=self.columns,
-                            pfn=self.wf_dir + 'data/' + self.columns.lfn)
+        self.rc.add_replica(site=self.file_site, lfn=self.columns,
+                            pfn=self.wf_dir + 'data/' + self.dataset + '/' + self.columns.lfn)
 
         for popfile in self.populations:
-            self.rc.add_replica(site=file_site, lfn=popfile,
+            self.rc.add_replica(site=self.file_site, lfn=popfile,
                                 pfn=self.wf_dir + 'data/populations/' + popfile.lfn)
 
     # --- Create Workflow -----------------------------------------------------
@@ -284,7 +283,7 @@ class GenomeWorkflow(object):
 
                 # Individuals Jobs
                 f_individuals = File(base_file)
-                self.rc.add_replica(site=self.exec_site, lfn=f_individuals, pfn=self.wf_dir +
+                self.rc.add_replica(site=self.file_site, lfn=f_individuals, pfn=self.wf_dir +
                                     '/data/' + self.dataset + '/' + f_individuals.lfn)
 
                 c_num = base_file[base_file.find('chr')+3:]
@@ -328,7 +327,7 @@ class GenomeWorkflow(object):
 
                 # Sifting Job
                 f_sifting = File(row[2])
-                self.rc.add_replica(site=self.exec_site, lfn=f_sifting, pfn=self.wf_dir +
+                self.rc.add_replica(site=self.file_site, lfn=f_sifting, pfn=self.wf_dir +
                                     '/data/' + self.dataset + '/sifting/' + f_sifting.lfn)
 
                 f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)
@@ -344,26 +343,26 @@ class GenomeWorkflow(object):
                 self.wf.add_jobs(j_sifting)
                 sifted_jobs.append(j_sifting)
 
-            # Analyses jobs
-            for i in range(len(individuals_files)):
-                for f_pop in self.populations:
-                    # Mutation Overlap Job
-                    f_mut_out = File('chr%s-%s.tar.gz' % (c_nums[i], f_pop.lfn))
-                    j_mutation = (
-                        Job('mutation_overlap')
-                            .add_args('-c', c_nums[i], '-pop', f_pop)
-                            .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
-                            .add_outputs(f_mut_out, stage_out=True, register_replica=False)
-                    )
-                    # Frequency Mutations Overlap Job
-                    f_freq_out = File('chr%s-%s-freq.tar.gz' % (c_nums[i], f_pop.lfn))
-                    j_freq = (
-                        Job('frequency')
-                            .add_args('-c', c_nums[i], '-pop', f_pop)
-                            .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
-                            .add_outputs(f_freq_out, stage_out=True, register_replica=False)
-                    )
-                    self.wf.add_jobs(j_mutation, j_freq)
+        # Analyses jobs
+        for i in range(len(individuals_files)):
+            for f_pop in self.populations:
+                # Mutation Overlap Job
+                f_mut_out = File('chr%s-%s.tar.gz' % (c_nums[i], f_pop.lfn))
+                j_mutation = (
+                    Job('mutation_overlap')
+                        .add_args('-c', c_nums[i], '-pop', f_pop)
+                        .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
+                        .add_outputs(f_mut_out, stage_out=True, register_replica=False)
+                )
+                # Frequency Mutations Overlap Job
+                f_freq_out = File('chr%s-%s-freq.tar.gz' % (c_nums[i], f_pop.lfn))
+                j_freq = (
+                    Job('frequency')
+                        .add_args('-c', c_nums[i], '-pop', f_pop)
+                        .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
+                        .add_outputs(f_freq_out, stage_out=True, register_replica=False)
+                )
+                self.wf.add_jobs(j_mutation, j_freq)
 
 
     # --- Run Workflow -----------------------------------------------------
@@ -378,9 +377,9 @@ class GenomeWorkflow(object):
                 output_sites=["local"],
                 output_dir=self.local_storage_dir,
                 cleanup="leaf",
-                force=True,
-                submit=submit,
-                verbose=0
+                # force=True,
+                submit=submit
+                # verbose=0
             )
             if wait:
                 self.wf.wait()
@@ -473,5 +472,5 @@ if __name__ == "__main__":
     print("Creating pipeline workflow dag...")
     workflow.create_workflow()
 
-    workflow.write(produce_dot=True)
+    workflow.write(produce_dot=False)
     workflow.run(submit=False, wait=False)
