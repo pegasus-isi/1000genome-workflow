@@ -34,13 +34,16 @@ class GenomeWorkflow(object):
                     ind_jobs: int = 250,
                     exec_site: Optional[str] = "condorpool",
                     use_bash: Optional[bool] = False,
+                    src_path: Optional[str] = None,
                     columns: str = 'columns.txt',
                 ) -> None:
         self.wf_name = "1000-genome"
         self.wid = self.wf_name + "-" + datetime.now().strftime("%s")
         self.dagfile = self.wid+".yml"
-
         self.wf_dir = str(Path(__file__).parent.resolve()) + '/'
+        self.src_path = self.wf_dir
+        if src_path: 
+            self.src_path = src_path
         
         self.dataset = dataset
         self.datafile = datafile
@@ -147,38 +150,36 @@ class GenomeWorkflow(object):
             Transformation(
                 "individuals",
                 site="local",
-                pfn=self.wf_dir + '/bin/individuals' + self.suffix,
+                pfn=self.src_path + '/bin/individuals' + self.suffix,
                 is_stageable=True,
-            ).add_profiles(Namespace.PEGASUS, key="label", value="decaf")
+            )
+            # .add_profiles(Namespace.PEGASUS, key="label", value="decaf")
         )
-
         e_individuals_merge = (
             Transformation(
                 "individuals_merge",
                 site="local",
-                pfn=self.wf_dir + '/bin/individuals_merge' + self.suffix,
+                pfn=self.src_path + '/bin/individuals_merge' + self.suffix,
                 is_stageable=True,
-            ).add_profiles(Namespace.PEGASUS, key="label", value="decaf")
+            )
+            # .add_profiles(Namespace.PEGASUS, key="label", value="decaf")
         )
-
         e_sifting = Transformation(
             "sifting",
             site="local",
-            pfn=self.wf_dir + '/bin/sifting' + self.suffix,
+            pfn=self.src_path+ '/bin/sifting' + self.suffix,
             is_stageable=True,
         )
-
         e_mutation_overlap = Transformation(
             "mutation_overlap",
             site="local",
-            pfn=self.wf_dir + '/bin/mutation_overlap' + self.suffix,
+            pfn=self.src_path + '/bin/mutation_overlap' + self.suffix,
             is_stageable=True,
         )
-
         e_freq = Transformation(
             "frequency",
             site="local",
-            pfn=self.wf_dir + '/bin/frequency.py',
+            pfn=self.src_path + '/bin/frequency.py',
             is_stageable=True,
         )
 
@@ -221,22 +222,50 @@ class GenomeWorkflow(object):
                     glite_arguments="--qos=xfer --licenses=SCRATCH"
                 )
             )
-
-            # github_location = "https://raw.githubusercontent.com/pegasus-isi/io-synthetic/master"
-            # wrapper_fn = os.path.join(
-            #     github_location, "bin/wrapper_darshan.sh")
-            # keg = (
-            #     Transformation("keg", site="cori",
-            #                    pfn=wrapper_fn, is_stageable=True)
-            #     .add_pegasus_profile(
-            #         cores="1",
-            #         runtime="1800",
-            #         glite_arguments="--qos=debug --constraint=haswell --licenses=SCRATCH",
-            #     )
-            #     .add_env(key="USER_HOME", value="${NERSC_USER_HOME}")
-            # )
-
             self.tc.add_transformations(pegasus_transfer, pegasus_dirmanager, pegasus_cleanup, system_chmod)
+            
+            github_location = "https://raw.githubusercontent.com/pegasus-isi/1000genome-workflow/master"
+            nersc_location = "/global/cfs/cdirs/m2187/pegasus-decaf/1000genome-workflow"
+            e_individuals = (
+                Transformation("individuals", site="cori", pfn=self.src_path + '/bin/individuals' + self.suffix, is_stageable=True)
+                .add_pegasus_profile(
+                    cores="1",
+                    runtime="1800",
+                    glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
+                )
+            )
+            e_individuals_merge = (
+                Transformation("individuals_merge", site="cori", pfn=self.src_path + '/bin/individuals_merge' + self.suffix, is_stageable=True)
+                .add_pegasus_profile(
+                    cores="1",
+                    runtime="1800",
+                    glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
+                )
+            )
+            e_sifting = (
+                Transformation("sifting", site="cori", pfn=self.src_path + '/bin/sifting' + self.suffix, is_stageable=True)
+                .add_pegasus_profile(
+                    cores="1",
+                    runtime="1800",
+                    glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
+                )
+            )
+            e_mutation_overlap = (
+                Transformation("mutation_overlap", site="cori", pfn=self.src_path + '/bin/mutation_overlap' + self.suffix, is_stageable=True)
+                .add_pegasus_profile(
+                    cores="1",
+                    runtime="1800",
+                    glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
+                )
+            )
+            e_freq = (
+                Transformation("frequency", site="cori", pfn=self.src_path + '/bin/frequency.py', is_stageable=True)
+                .add_pegasus_profile(
+                    cores="1",
+                    runtime="1800",
+                    glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
+                )
+            )   
 
         self.tc.add_transformations(
             e_individuals, e_individuals_merge, e_sifting, e_mutation_overlap, e_freq)
@@ -247,11 +276,11 @@ class GenomeWorkflow(object):
         self.rc = ReplicaCatalog()
 
         self.rc.add_replica(site=self.file_site, lfn=self.columns,
-                            pfn=self.wf_dir + 'data/' + self.dataset + '/' + self.columns.lfn)
+                            pfn=self.src_path + 'data/' + self.dataset + '/' + self.columns.lfn)
 
         for popfile in self.populations:
             self.rc.add_replica(site=self.file_site, lfn=popfile,
-                                pfn=self.wf_dir + 'data/populations/' + popfile.lfn)
+                                pfn=self.src_path + 'data/populations/' + popfile.lfn)
 
     # --- Create Workflow -----------------------------------------------------
 
@@ -283,7 +312,7 @@ class GenomeWorkflow(object):
 
                 # Individuals Jobs
                 f_individuals = File(base_file)
-                self.rc.add_replica(site=self.file_site, lfn=f_individuals, pfn=self.wf_dir +
+                self.rc.add_replica(site=self.file_site, lfn=f_individuals, pfn=self.src_path +
                                     '/data/' + self.dataset + '/' + f_individuals.lfn)
 
                 c_num = base_file[base_file.find('chr')+3:]
@@ -327,7 +356,7 @@ class GenomeWorkflow(object):
 
                 # Sifting Job
                 f_sifting = File(row[2])
-                self.rc.add_replica(site=self.file_site, lfn=f_sifting, pfn=self.wf_dir +
+                self.rc.add_replica(site=self.file_site, lfn=f_sifting, pfn=self.src_path +
                                     '/data/' + self.dataset + '/sifting/' + f_sifting.lfn)
 
                 f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)
@@ -372,7 +401,7 @@ class GenomeWorkflow(object):
             plan_site = [self.exec_site]
             self.wf.plan(
                 dir=self.wf_dir,
-                relative_dir=self.wid,
+                # relative_dir=self.wid,
                 sites=plan_site,
                 output_sites=["local"],
                 output_dir=self.local_storage_dir,
@@ -398,16 +427,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Skip site catalog creation",
     )
-
     parser.add_argument(
         "-e",
         "--execution-site",
         metavar="STR",
         type=str,
-        default="condorpool",
-        help="Execution site name (default: condorpool)",
+        default="local",
+        help="Execution site name (default: local)",
     )
-
     parser.add_argument(
         '-D', 
         '--dataset', 
@@ -416,7 +443,6 @@ if __name__ == "__main__":
         default='20130502', 
         help='Dataset folder'
     )
-
     parser.add_argument(
         '-f', 
         '--datafile', 
@@ -425,7 +451,6 @@ if __name__ == "__main__":
         default='data.csv', 
         help='Data file with list of input data'
     )
-
     parser.add_argument(
         '-b', 
         '--bash-jobs', 
@@ -433,7 +458,6 @@ if __name__ == "__main__":
         dest='use_bash', 
         help='Use original bash scripts for individuals, individuals_merge and sifting'
     )
-
     parser.add_argument(
         '-i',
         '--individuals-jobs',
@@ -445,6 +469,14 @@ if __name__ == "__main__":
             (if larger than the total number of rows in the data for that chromosome, \
             then it will be set to the number of rows so each job will process one row)'
     )
+    parser.add_argument(
+        "-p",
+        "--src-path",
+        metavar="STR",
+        type=str,
+        default=None,
+        help="Absolute path of source directory you want to use. If this option is not specified, local current directory will be used",
+    )
 
     args = parser.parse_args()
 
@@ -453,7 +485,8 @@ if __name__ == "__main__":
         dataset = args.dataset,
         ind_jobs = args.ind_jobs,
         exec_site=args.execution_site,
-        use_bash = args.use_bash
+        use_bash = args.use_bash,
+        src_path = args.src_path
     )
 
     if not args.skip_sites_catalog:
