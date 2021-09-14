@@ -283,8 +283,8 @@ class GenomeWorkflow(object):
                 )
             )   
             if self.use_decaf:
-                env_script="/global/cfs/cdirs/m2187/pegasus-decaf/1000genome-workflow/env.sh"
-                json_fn="1Kgenome.json"
+                env_script = self.src_path + '/env.sh'
+                json_fn = "1Kgenome.json"
                 decaf = (
                     Transformation("decaf", namespace="dataflow", site="cori", pfn=json_fn, is_stageable=False)
                     .add_pegasus_profile(
