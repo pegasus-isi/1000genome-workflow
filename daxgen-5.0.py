@@ -405,25 +405,25 @@ class GenomeWorkflow(object):
                 sifted_jobs.append(j_sifting)
 
         # Analyses jobs
-        # for i in range(len(individuals_files)):
-        #     for f_pop in self.populations:
-        #         # Mutation Overlap Job
-        #         f_mut_out = File('chr%s-%s.tar.gz' % (c_nums[i], f_pop.lfn))
-        #         j_mutation = (
-        #             Job('mutation_overlap')
-        #                 .add_args('-c', c_nums[i], '-pop', f_pop)
-        #                 .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
-        #                 .add_outputs(f_mut_out, stage_out=True, register_replica=False)
-        #         )
-        #         # Frequency Mutations Overlap Job
-        #         f_freq_out = File('chr%s-%s-freq.tar.gz' % (c_nums[i], f_pop.lfn))
-        #         j_freq = (
-        #             Job('frequency')
-        #                 .add_args('-c', c_nums[i], '-pop', f_pop)
-        #                 .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
-        #                 .add_outputs(f_freq_out, stage_out=True, register_replica=False)
-        #         )
-        #         self.wf.add_jobs(j_mutation, j_freq)
+        for i in range(len(individuals_files)):
+            for f_pop in self.populations:
+                # Mutation Overlap Job
+                f_mut_out = File('chr%s-%s.tar.gz' % (c_nums[i], f_pop.lfn))
+                j_mutation = (
+                    Job('mutation_overlap')
+                        .add_args('-c', c_nums[i], '-pop', f_pop)
+                        .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
+                        .add_outputs(f_mut_out, stage_out=True, register_replica=False)
+                )
+                # Frequency Mutations Overlap Job
+                f_freq_out = File('chr%s-%s-freq.tar.gz' % (c_nums[i], f_pop.lfn))
+                j_freq = (
+                    Job('frequency')
+                        .add_args('-c', c_nums[i], '-pop', f_pop)
+                        .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
+                        .add_outputs(f_freq_out, stage_out=True, register_replica=False)
+                )
+                self.wf.add_jobs(j_mutation, j_freq)
 
 
     # --- Run Workflow -----------------------------------------------------
