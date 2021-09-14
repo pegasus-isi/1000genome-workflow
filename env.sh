@@ -10,8 +10,8 @@ module load cmake
 module load boost/1.69.0
 
 # Decaf
-#export DECAF_PREFIX="${HOME}/software/install/decaf"
-DECAF_LIBDIR="/global/cfs/cdirs/m2187/pegasus-decaf/1000genome-workflow/lib"
+DECAF_LIBDIR=$(dirname "$(readlink -f "${BASH_SOURCE[-1]}")")
+DECAF_LIBDIR="${DECAF_LIBDIR}/lib"
 export LD_LIBRARY_PATH="${DECAF_LIBDIR}:${LD_LIBRARY_PATH}"
 export PYTHONPATH="${DECAF_LIBDIR}:${PYTHONPATH}"
 
