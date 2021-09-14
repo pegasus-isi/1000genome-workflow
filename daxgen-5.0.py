@@ -36,6 +36,7 @@ class GenomeWorkflow(object):
                     use_bash: Optional[bool] = False,
                     src_path: Optional[str] = None,
                     columns: str = 'columns.txt',
+                    use_decaf: Optional[bool] = False,
                 ) -> None:
         self.wf_name = "1000-genome"
         self.wid = self.wf_name + "-" + datetime.now().strftime("%s")
@@ -50,6 +51,9 @@ class GenomeWorkflow(object):
         self.exec_site = exec_site
         self.columns = File(columns)
         self.ind_jobs = ind_jobs
+        self.use_decaf = use_decaf
+        if self.use_decaf:
+            print("Using Decaf...")
         
         self.file_site = "local"
         if self.exec_site == "cori":
@@ -90,6 +94,9 @@ class GenomeWorkflow(object):
     # --- Configuration (Pegasus Properties) ----------------------------------
     def create_pegasus_properties(self):
         self.props = Properties()
+        if self.use_decaf :
+            self.props["pegasus.job.aggregator"] = "Decaf"
+            self.props["pegasus.data.configuration"] = "sharedfs"
 
     # --- Site Catalog --------------------------------------------------------
     def create_sites_catalog(self) -> None:
@@ -185,6 +192,7 @@ class GenomeWorkflow(object):
         )
 
         if self.exec_site == "cori":
+            # Pegasus transformations
             pegasus_transfer = (
                 Transformation("transfer", namespace="pegasus", site="cori",
                                pfn="$PEGASUS_HOME/bin/pegasus-transfer", is_stageable=False)
@@ -225,16 +233,25 @@ class GenomeWorkflow(object):
             )
             self.tc.add_transformations(pegasus_transfer, pegasus_dirmanager, pegasus_cleanup, system_chmod)
             
+            # Main tasks' transformations
+            individuals_pfn = self.src_path + '/bin/individuals' + self.suffix 
+            individuals_merge_pfn = self.src_path + '/bin/individuals_merge' + self.suffix
+            sifting_pfn = self.src_path + '/bin/sifting' + self.suffix
+            mutation_overlap_pfn = self.src_path + '/bin/mutation_overlap' + self.suffix
+            freq_pfn = self.src_path + '/bin/frequency.py'
+            if self.use_decaf:
+                individuals_pfn = self.src_path + '/bin/individuals_mpi' + self.suffix
+                individuals_merge_pfn = self.src_path + '/bin/individuals_merge_mpi' + self.suffix
             e_individuals = (
-                Transformation("individuals", site="cori", pfn=self.src_path + '/bin/individuals' + self.suffix, is_stageable=True)
+                Transformation("individuals", site="cori", pfn=individuals_pfn, is_stageable=True)
                 .add_pegasus_profile(
                     cores="1",
-                    runtime="1800",
+                    runtime="18000",
                     glite_arguments="--qos=debug --constraint=haswell --licenses=SCRATCH",
                 )
             )
             e_individuals_merge = (
-                Transformation("individuals_merge", site="cori", pfn=self.src_path + '/bin/individuals_merge' + self.suffix, is_stageable=True)
+                Transformation("individuals_merge", site="cori", pfn=individuals_merge_pfn, is_stageable=True)
                 .add_pegasus_profile(
                     cores="1",
                     runtime="1800",
@@ -242,7 +259,7 @@ class GenomeWorkflow(object):
                 )
             )
             e_sifting = (
-                Transformation("sifting", site="cori", pfn=self.src_path + '/bin/sifting' + self.suffix, is_stageable=True)
+                Transformation("sifting", site="cori", pfn=sifting_pfn, is_stageable=True)
                 .add_pegasus_profile(
                     cores="1",
                     runtime="1800",
@@ -250,7 +267,7 @@ class GenomeWorkflow(object):
                 )
             )
             e_mutation_overlap = (
-                Transformation("mutation_overlap", site="cori", pfn=self.src_path + '/bin/mutation_overlap' + self.suffix, is_stageable=True)
+                Transformation("mutation_overlap", site="cori", pfn=mutation_overlap_pfn, is_stageable=True)
                 .add_pegasus_profile(
                     cores="1",
                     runtime="1800",
@@ -258,13 +275,25 @@ class GenomeWorkflow(object):
                 )
             )
             e_freq = (
-                Transformation("frequency", site="cori", pfn=self.src_path + '/bin/frequency.py', is_stageable=True)
+                Transformation("frequency", site="cori", pfn=freq_pfn, is_stageable=True)
                 .add_pegasus_profile(
                     cores="1",
                     runtime="1800",
                     glite_arguments="--qos=debug --constraint=haswell --licenses=SCRATCH",
                 )
             )   
+            if self.use_decaf:
+                env_script="/global/cfs/cdirs/m2187/pegasus-decaf/1000genome-workflow/env.sh"
+                json_fn="1Kgenome.json"
+                decaf = (
+                    Transformation("decaf", namespace="dataflow", site="cori", pfn=json_fn, is_stageable=False)
+                    .add_pegasus_profile(
+                        runtime="1800",
+                        glite_arguments="--qos=debug --constraint=haswell --licenses=SCRATCH",
+                    )
+                    .add_env(key="DECAF_ENV_SOURCE", value=env_script)  
+                )
+                self.tc.add_transformations(decaf)
 
         self.tc.add_transformations(
             e_individuals, e_individuals_merge, e_sifting, e_mutation_overlap, e_freq)
@@ -331,6 +360,8 @@ class GenomeWorkflow(object):
                             .add_inputs(f_individuals, self.columns)
                             .add_outputs(f_chrn, stage_out=False, register_replica=False)
                     )
+                    if self.use_decaf:
+                        j_individuals.add_profiles(Namespace.PEGASUS, key="label", value="cluster1")
 
                     individuals_jobs.append(j_individuals)
                     self.wf.add_jobs(j_individuals)
@@ -349,6 +380,8 @@ class GenomeWorkflow(object):
                 f_chrn_merged = File(individuals_filename)
                 individuals_files.append(f_chrn_merged)
                 j_individuals_merge.add_outputs(f_chrn_merged, stage_out=False, register_replica=False)
+                if self.use_decaf:
+                    j_individuals_merge.add_profiles(Namespace.PEGASUS, key="label", value="cluster1")
 
                 self.wf.add_jobs(j_individuals_merge)
                 individuals_merge_jobs.append(j_individuals_merge)
@@ -398,6 +431,9 @@ class GenomeWorkflow(object):
     def run(self, submit=False, wait=False):
         try:
             plan_site = [self.exec_site]
+            cluster_type = None
+            if self.use_decaf: 
+                cluster_type = ["label"]
             self.wf.plan(
                 dir=self.wf_dir,
                 # relative_dir=self.wid,
@@ -406,7 +442,8 @@ class GenomeWorkflow(object):
                 output_dir=self.local_storage_dir,
                 cleanup="leaf",
                 force=True,
-                submit=submit
+                submit=submit,
+                cluster=cluster_type
                 # verbose=0
             )
             if wait:
@@ -476,7 +513,13 @@ if __name__ == "__main__":
         default=None,
         help="Absolute path of source directory you want to use. If this option is not specified, local current directory will be used",
     )
-
+    parser.add_argument(
+        '-d', 
+        '--decaf', 
+        action='store_true', 
+        dest='use_decaf', 
+        help='Use Decaf to stage data using memory'
+    )
     args = parser.parse_args()
 
     workflow = GenomeWorkflow(
@@ -485,7 +528,8 @@ if __name__ == "__main__":
         ind_jobs = args.ind_jobs,
         exec_site=args.execution_site,
         use_bash = args.use_bash,
-        src_path = args.src_path
+        src_path = args.src_path,
+        use_decaf = args.use_decaf
     )
 
     if not args.skip_sites_catalog:
