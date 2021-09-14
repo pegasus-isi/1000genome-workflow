@@ -225,8 +225,6 @@ class GenomeWorkflow(object):
             )
             self.tc.add_transformations(pegasus_transfer, pegasus_dirmanager, pegasus_cleanup, system_chmod)
             
-            github_location = "https://raw.githubusercontent.com/pegasus-isi/1000genome-workflow/master"
-            nersc_location = "/global/cfs/cdirs/m2187/pegasus-decaf/1000genome-workflow"
             e_individuals = (
                 Transformation("individuals", site="cori", pfn=self.src_path + '/bin/individuals' + self.suffix, is_stageable=True)
                 .add_pegasus_profile(
@@ -277,11 +275,11 @@ class GenomeWorkflow(object):
         self.rc = ReplicaCatalog()
 
         self.rc.add_replica(site=self.file_site, lfn=self.columns,
-                            pfn=self.src_path + 'data/' + self.dataset + '/' + self.columns.lfn)
+                            pfn=self.src_path + '/data/' + self.dataset + '/' + self.columns.lfn)
 
         for popfile in self.populations:
             self.rc.add_replica(site=self.file_site, lfn=popfile,
-                                pfn=self.src_path + 'data/populations/' + popfile.lfn)
+                                pfn=self.src_path + '/data/populations/' + popfile.lfn)
 
     # --- Create Workflow -----------------------------------------------------
 
