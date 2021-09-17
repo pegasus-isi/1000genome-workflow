@@ -144,6 +144,7 @@ def processing(inputfile, columfile, c, counter, stop, total):
 
 
 if __name__ == "__main__":
+    start = time.time()
     inputfile = sys.argv[1]
     c = sys.argv[2]
     counter = sys.argv[3]
@@ -168,3 +169,4 @@ if __name__ == "__main__":
 
     print("individuals at rank " + str(r) + " terminating")
     decaf.terminate()
+    print('Execution time in seconds: ' + str(time.time() - start))

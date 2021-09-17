@@ -110,7 +110,7 @@ def merging(c, tar_files):
 
 
 if __name__ == "__main__":
-
+    start = time.time()
     w = d.Workflow()
     w.makeWflow(w,"1Kgenome.json")
 
@@ -122,3 +122,4 @@ if __name__ == "__main__":
 
     print("individuals_merge at rank " + str(r) + " terminating")
     decaf.terminate()
+    print('Execution time in seconds: ' + str(time.time() - start))
