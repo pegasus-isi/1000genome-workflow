@@ -144,6 +144,8 @@ def processing(inputfile, columfile, c, counter, stop, total):
 
 
 if __name__ == "__main__":
+    print(f"Host = {os.uname()[1]}")
+    print(f"CPUs = {os.sched_getaffinity(0)}")
     start = time.time()
     inputfile = sys.argv[1]
     c = sys.argv[2]
