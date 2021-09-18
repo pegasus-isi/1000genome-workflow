@@ -93,16 +93,25 @@ def processing(inputfile, columfile, c, counter, stop, total):
             af_value = second[4].split(';')[8].split('=')[1]
             # We replace with AF_Value
             second[4] = af_value
-            af_value = float(af_value.split(',')[0]) # We only keep the first value if more than one (that's what awk is doing)
-            elem = first.split('|')
-            # We skip some lines that do not meet these conditions
-            if af_value >= 0.5 and elem[0] == '0':
-                chrp_data[i].append(second)
-                count = count + 1
-            elif af_value < 0.5 and elem[0] == '1':
-                chrp_data[i].append(second)
-                count = count + 1
-            else:
+            #af_value = float(af_value.split(',')[0]) # We only keep the first value if more than one (that's what awk is doing)
+            try:
+                if ',' in af_value:
+                    # We only keep the first value if more than one (that's what awk is doing)
+                    af_value = float(af_value.split(',')[0])
+                else:
+                    af_value = float(af_value)
+                    
+                elem = first.split('|')
+                # We skip some lines that do not meet these conditions
+                if af_value >= 0.5 and elem[0] == '0':
+                    chrp_data[i].append(second)
+                    count = count + 1
+                elif af_value < 0.5 and elem[0] == '1':
+                    chrp_data[i].append(second)
+                    count = count + 1
+                else:
+                    continue
+            except ValueError:
                 continue
 
 ##orc@09-08: first gains w the mpi version, eliminating the file write on individuals
