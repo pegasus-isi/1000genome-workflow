@@ -10,7 +10,7 @@ from pathlib import Path
 
 from Pegasus.api import *
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.INFO)
 
 # --- Import Pegasus API ------------------------------------------------------
 
@@ -37,13 +37,15 @@ class GenomeWorkflow(object):
                     src_path: Optional[str] = None,
                     columns: str = 'columns.txt',
                     use_decaf: Optional[bool] = False,
+                    custom_site_file: Optional[str] = None,
                 ) -> None:
+
         self.wf_name = "1000-genome"
         self.wid = self.wf_name + "-" + datetime.now().strftime("%s")
         self.dagfile = self.wid+".yml"
         self.wf_dir = str(Path(__file__).parent.resolve()) + '/'
         self.src_path = self.wf_dir
-        if src_path: 
+        if src_path:
             self.src_path = src_path
         
         self.dataset = dataset
@@ -52,6 +54,8 @@ class GenomeWorkflow(object):
         self.columns = File(columns)
         self.ind_jobs = ind_jobs
         self.use_decaf = use_decaf
+        self.custom_site_file = custom_site_file
+
         if self.use_decaf:
             print("Using Decaf...")
         
@@ -94,9 +98,13 @@ class GenomeWorkflow(object):
     # --- Configuration (Pegasus Properties) ----------------------------------
     def create_pegasus_properties(self):
         self.props = Properties()
-        if self.use_decaf :
+        if self.use_decaf:
             self.props["pegasus.job.aggregator"] = "Decaf"
             self.props["pegasus.data.configuration"] = "sharedfs"
+
+        if self.custom_site_file:
+            print("==> Overriding site file with given site catalog: {}".format(self.custom_site_file))
+            self.props["pegasus.catalog.site.file"] = self.custom_site_file
 
     # --- Site Catalog --------------------------------------------------------
     def create_sites_catalog(self) -> None:
@@ -388,46 +396,6 @@ class GenomeWorkflow(object):
                 self.wf.add_jobs(j_individuals_merge)
                 individuals_merge_jobs.append(j_individuals_merge)
 
-                # Sifting Job
-                # f_sifting = File(row[2])
-                # self.rc.add_replica(site=self.file_site, lfn=f_sifting, pfn=self.src_path +
-                #                     '/data/' + self.dataset + '/sifting/' + f_sifting.lfn)
-
-                # f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)
-                # sifted_files.append(f_sifted)
-
-                # j_sifting = (
-                #     Job('sifting')
-                #         .add_inputs(f_sifting)
-                #         .add_outputs(f_sifted, stage_out=False, register_replica=False)
-                #         .add_args(f_sifting, c_num)
-                # )
-
-                # self.wf.add_jobs(j_sifting)
-                # sifted_jobs.append(j_sifting)
-
-        # Analyses jobs
-        # for i in range(len(individuals_files)):
-        #     for f_pop in self.populations:
-        #         # Mutation Overlap Job
-        #         f_mut_out = File('chr%s-%s.tar.gz' % (c_nums[i], f_pop.lfn))
-        #         j_mutation = (
-        #             Job('mutation_overlap')
-        #                 .add_args('-c', c_nums[i], '-pop', f_pop)
-        #                 .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
-        #                 .add_outputs(f_mut_out, stage_out=True, register_replica=False)
-        #         )
-        #         # Frequency Mutations Overlap Job
-        #         f_freq_out = File('chr%s-%s-freq.tar.gz' % (c_nums[i], f_pop.lfn))
-        #         j_freq = (
-        #             Job('frequency')
-        #                 .add_args('-c', c_nums[i], '-pop', f_pop)
-        #                 .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
-        #                 .add_outputs(f_freq_out, stage_out=True, register_replica=False)
-        #         )
-        #         self.wf.add_jobs(j_mutation, j_freq)
-
-
     # --- Run Workflow -----------------------------------------------------
 
     def run(self, dir_name, submit=False, wait=False):
@@ -446,7 +414,6 @@ class GenomeWorkflow(object):
                 force=True,
                 submit=submit,
                 cluster=cluster_type
-                # verbose=0
             )
             if wait:
                 self.wf.wait()
@@ -461,9 +428,9 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "-s",
-        "--skip-sites-catalog",
+        "--submit",
         action="store_true",
-        help="Skip site catalog creation",
+        help="Submit the workflow",
     )
     parser.add_argument(
         "-e",
@@ -527,8 +494,16 @@ if __name__ == "__main__":
         "--dir-name",
         metavar="STR",
         type=str,
-        default="1000genome",
+        default=None,
         help="Name of the submit directory",
+    )
+    parser.add_argument(
+        "-S",
+        "--sites-catalog",
+        metavar="STR",
+        type=str,
+        default=None,
+        help="Use an existing site catalog (XML OR YAML)",
     )
     args = parser.parse_args()
 
@@ -536,15 +511,15 @@ if __name__ == "__main__":
         datafile = args.datafile,
         dataset = args.dataset,
         ind_jobs = args.ind_jobs,
-        exec_site=args.execution_site,
+        exec_site = args.execution_site,
         use_bash = args.use_bash,
         src_path = args.src_path,
-        use_decaf = args.use_decaf
+        use_decaf = args.use_decaf,
+        custom_site_file = args.sites_catalog
     )
 
-    if not args.skip_sites_catalog:
-        print("Creating execution sites...")
-        workflow.create_sites_catalog()
+    print("Creating execution sites...")
+    workflow.create_sites_catalog()
 
     print("Creating workflow properties...")
     workflow.create_pegasus_properties()
@@ -559,4 +534,11 @@ if __name__ == "__main__":
     workflow.create_workflow()
 
     workflow.write(produce_dot=False)
-    workflow.run(args.dir_name, submit=True, wait=False)
+
+    if not args.dir_name:
+        args.dir_name = workflow.wid
+
+    print("Workflow created in {}/{}".format(workflow.wf_dir, args.dir_name))
+
+    workflow.run(args.dir_name, submit=args.submit, wait=False)
+
