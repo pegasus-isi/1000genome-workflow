@@ -28,16 +28,10 @@ Unzipping Input Data
 Generating a Workflow
 ---------------------
 ```
-./daxgen.py
+./daxgen-5.0.py
 ```
 Or
 ```
-./daxgen.py -d 1000genome.dax -D 20130502 -f data.csv
+./daxgen-5.0.py -d 1000genome.dax -D 20130502 -f data.csv
 ```
 This workflow assumes that all input data listed in the `data.csv` file is available in the `data/20130502` folder, for example.
-
-Running a Workflow
--------------------
-```
-./plan_dax.sh 1000genome.dax
-```
