@@ -19,6 +19,15 @@ _Frequency Overlap Mutations_. This tasks measures the frequency of overlapping 
 
 This workflow is based on the application described in: https://github.com/rosafilgueira/Mutation_Sets
 
+## Prerequisites
+
+This workflow is fully compatible with Pegasus WMS, we have the following prerequisites:
+
+- **Pegasus** - version 5.0 or higher
+- **Python** - version 3.6 or higher
+
+## Running this worklow
+
 Unzipping Input Data
 ---------------------
 ```
