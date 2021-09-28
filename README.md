@@ -26,6 +26,8 @@ This workflow is fully compatible with Pegasus WMS, we have the following prereq
 - **Pegasus** - version 5.0 or higher
 - **Python** - version 3.6 or higher
 
+Note that, there exists a version of this workflow comaptible with Pegasus 4.9 under the branch `4.9`.
+
 ## Running this worklow
 
 Unzipping Input Data
