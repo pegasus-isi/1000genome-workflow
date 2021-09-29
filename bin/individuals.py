@@ -22,8 +22,8 @@ def processing(inputfile, columfile, c, counter, stop, total):
     tic = time.perf_counter()
 
     counter = int(counter)
-    ending = int(min(stop, total))
-    print("== Ending: {}".format(ending))
+    ending = min(int(stop), int(total))
+    
     ### step 0
     unzipped = 'ALL.chr{}.individuals.vcf'.format(c)
     # unzipped = os.path.splitext(inputfile)[0]  # Remove .gz
