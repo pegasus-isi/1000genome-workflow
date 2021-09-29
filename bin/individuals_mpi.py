@@ -27,7 +27,7 @@ def processing(inputfile, columfile, c, counter, stop, total):
     tic = time.perf_counter()
 
     counter = int(counter)
-    ending = int(min(stop, total))
+    ending = min(int(stop), int(total))
 
     ### step 0
     unzipped = 'ALL.chr{}.individuals.vcf'.format(c)
