@@ -23,7 +23,7 @@ def processing(inputfile, columfile, c, counter, stop, total):
 
     counter = int(counter)
     ending = int(min(stop, total))
-
+    print("== Ending: {}".format(ending))
     ### step 0
     unzipped = 'ALL.chr{}.individuals.vcf'.format(c)
     # unzipped = os.path.splitext(inputfile)[0]  # Remove .gz
