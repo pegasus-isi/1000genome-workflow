@@ -10,7 +10,7 @@ from pathlib import Path
 
 from Pegasus.api import *
 
-# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
 # --- Import Pegasus API ------------------------------------------------------
 
@@ -254,7 +254,7 @@ class GenomeWorkflow(object):
                 Transformation("individuals", site="cori", pfn=individuals_pfn, is_stageable=True)
                 .add_pegasus_profile(
                     cores="1",
-                    runtime="18000",
+                    runtime="10800",
                     glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
                 )
             )
@@ -297,7 +297,7 @@ class GenomeWorkflow(object):
                 decaf = (
                     Transformation("decaf", namespace="dataflow", site="cori", pfn=json_fn, is_stageable=False)
                     .add_pegasus_profile(
-                        runtime="18000",
+                        runtime="10800",
                         glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH --nodes=" + str(n_nodes) + " --ntasks-per-node=1 --ntasks=" + str(n_nodes),
                         # glite_arguments="--qos=debug --constraint=haswell --licenses=SCRATCH",
                     )
@@ -395,6 +395,45 @@ class GenomeWorkflow(object):
 
                 self.wf.add_jobs(j_individuals_merge)
                 individuals_merge_jobs.append(j_individuals_merge)
+                
+                # Sifting Job
+                f_sifting = File(row[2])
+                self.rc.add_replica(site=self.file_site, lfn=f_sifting, pfn=self.src_path +
+                                    '/data/' + self.dataset + '/sifting/' + f_sifting.lfn)
+
+                f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)
+                sifted_files.append(f_sifted)
+
+                j_sifting = (
+                    Job('sifting')
+                        .add_inputs(f_sifting)
+                        .add_outputs(f_sifted, stage_out=False, register_replica=False)
+                        .add_args(f_sifting, c_num)
+                )
+
+                self.wf.add_jobs(j_sifting)
+                sifted_jobs.append(j_sifting)
+
+        # Analyses jobs
+        for i in range(len(individuals_files)):
+            for f_pop in self.populations:
+                # Mutation Overlap Job
+                f_mut_out = File('chr%s-%s.tar.gz' % (c_nums[i], f_pop.lfn))
+                j_mutation = (
+                    Job('mutation_overlap')
+                        .add_args('-c', c_nums[i], '-pop', f_pop)
+                        .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
+                        .add_outputs(f_mut_out, stage_out=True, register_replica=False)
+                )
+                # Frequency Mutations Overlap Job
+                f_freq_out = File('chr%s-%s-freq.tar.gz' % (c_nums[i], f_pop.lfn))
+                j_freq = (
+                    Job('frequency')
+                        .add_args('-c', c_nums[i], '-pop', f_pop)
+                        .add_inputs(individuals_files[i], sifted_files[i], f_pop, self.columns)
+                        .add_outputs(f_freq_out, stage_out=True, register_replica=False)
+                )
+                self.wf.add_jobs(j_mutation, j_freq)
 
     # --- Run Workflow -----------------------------------------------------
 
