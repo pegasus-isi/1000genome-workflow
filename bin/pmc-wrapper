@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+LAUNCH_DIR=`pwd`
+ls
+cp merge_*.in $PEGASUS_SCRATCH_DIR
+
+cd $PEGASUS_SCRATCH_DIR
+ls
+srun -n $PEGASUS_PMC_TASKS $PEGASUS_HOME/bin/pegasus-mpi-cluster $@
