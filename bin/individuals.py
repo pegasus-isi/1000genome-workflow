@@ -121,6 +121,8 @@ def processing(inputfile, columfile, c, counter, stop, total):
     print("= Chromosome {} processed in {:0.2f} seconds.".format(c, time.perf_counter() - tic))
 
 if __name__ == "__main__":
+    print(f"Host = {os.uname()[1]}")
+    print(f"CPUs = {os.sched_getaffinity(0)}")
     inputfile = sys.argv[1]
     c = sys.argv[2]
     counter = sys.argv[3]

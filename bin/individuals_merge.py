@@ -69,4 +69,6 @@ def merging(c, tar_files):
 
 
 if __name__ == "__main__":
+    print(f"Host = {os.uname()[1]}")
+    print(f"CPUs = {os.sched_getaffinity(0)}")
     merging(c=sys.argv[1], tar_files=sys.argv[2:])
