@@ -1,5 +1,5 @@
 #!/bin/bash
-LOG_DIR=../
+LOG_DIR=./log/
 function generate_statistics {
     for d in ${LOG_DIR}/pegasus_*/ ; do
         echo "$d"
@@ -23,6 +23,13 @@ function decaf_runtime {
     done
 }
 
+function pmc_runtime {
+    for d in ${LOG_DIR}/pmc_*/ ; do
+        ctime=$(cat ${d}/00/00/merge_cluster1.err.* | grep "Wall time" | sed 's/.*Wall time: \([^ ]*\).*/\1/')
+        echo "$d ${ctime}"
+    done
+}
+
 function get_stats {
     # cat stat | grep $1 | awk -F' ' '{print $2}'
     cat $1 | grep $2 | awk '{if($2!=""){count++;sum+=$2};y+=$2^2} END{sq=sqrt(y/NR-(sum/NR)^2);sq=sq?sq:0;print "mean = "sum/count ORS "std = ",sq}'
@@ -31,8 +38,9 @@ function get_stats {
 stat_file="stat"
 pegasus_runtime > ${stat_file}
 decaf_runtime >> ${stat_file}
-opts=( "pegasus" "decaf" )
-sizes=( 5 10 16 )
+pmc_runtime >> ${stat_file}
+opts=( "pegasus" "decaf" "pmc" )
+sizes=( 2 5 10 16 )
 for opt in "${opts[@]}"; do
     for size in "${sizes[@]}"; do
         echo ${opt}_${size}
