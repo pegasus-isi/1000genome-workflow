@@ -1,6 +1,7 @@
 #!/bin/bash
 LOG_DIR=./log/
-function generate_statistics {
+stat_file="summary.csv"
+function generate_pegasus_statistics {
     for d in ${LOG_DIR}/pegasus_*/ ; do
         echo "$d"
         pegasus-statistics -s all ${d}
@@ -8,42 +9,62 @@ function generate_statistics {
 }
 
 function pegasus_runtime {
-    for d in ${LOG_DIR}/pegasus_*/ ; do
-        individuals_time=$(cat ${d}/statistics/breakdown.txt | grep "\<individuals\>" | grep -m1 successful | awk -F' ' '{print $5}')
-        merge_time=$(cat ${d}/statistics/breakdown.txt | grep "\<individuals_merge\>" | grep -m1 successful | awk -F' ' '{print $5}') 
-        runtime=$(bc <<<"$merge_time + $individuals_time")
-        echo "$d ${runtime}"
-    done
+    d=$1
+    individuals_time=$(cat ${d}/statistics/breakdown.txt | grep "\<individuals\>" | grep -m1 successful | awk -F' ' '{print $5}')
+    merge_time=$(cat ${d}/statistics/breakdown.txt | grep "\<individuals_merge\>" | grep -m1 successful | awk -F' ' '{print $5}') 
+    runtime=$(bc <<<"$merge_time + $individuals_time")
+    echo ${runtime}
 }
 
 function decaf_runtime {
-    for d in ${LOG_DIR}/decaf_*/ ; do
-        ctime=$(cat ${d}/00/00/merge_cluster1.out | tail -1 | sed 's/.*: //')
-        echo "$d ${ctime}"
-    done
+    d=$1
+    ctime=$(cat ${d}/00/00/merge_cluster1.out | tail -1 | sed 's/.*: //')
+    echo "${ctime}"
 }
 
 function pmc_runtime {
-    for d in ${LOG_DIR}/pmc_*/ ; do
-        ctime=$(cat ${d}/00/00/merge_cluster1.err.* | grep "Wall time" | sed 's/.*Wall time: \([^ ]*\).*/\1/')
-        echo "$d ${ctime}"
-    done
+    d=$1
+    ctime=$(cat ${d}/00/00/merge_cluster1.err.* | grep "Wall time" | sed 's/.*Wall time: \([^ ]*\).*/\1/')
+    echo "${ctime}"
 }
 
 function get_stats {
-    # cat stat | grep $1 | awk -F' ' '{print $2}'
-    cat $1 | grep $2 | awk '{if($2!=""){count++;sum+=$2};y+=$2^2} END{sq=sqrt(y/NR-(sum/NR)^2);sq=sq?sq:0;print "mean = "sum/count ORS "std = ",sq}'
+    cat $1 | grep $2 | awk -F',' '{if($3!=""){count++;sum+=$3};y+=$3^2} END{sq=sqrt(y/NR-(sum/NR)^2);sq=sq?sq:0;print "mean = "sum/count ORS "std = ",sq}'
 }
 
-stat_file="stat"
-pegasus_runtime > ${stat_file}
-decaf_runtime >> ${stat_file}
-pmc_runtime >> ${stat_file}
+function generate_stats {
+    echo "scenario,num individuals,wall time"
+    for dir in ${LOG_DIR}/*/; do
+        dir_name=$(basename $dir)
+        ninds=$(echo ${dir_name} | awk -F[_.] '{print $2}')
+        
+        scenario=""
+        case $dir_name in
+            *"pegasus"*)
+                scenario="pegasus"
+                echo "${scenario},${ninds},$(pegasus_runtime $dir)"
+                ;;
+            *"decaf"*)
+                scenario="decaf"
+                echo "${scenario},${ninds},$(decaf_runtime $dir)"
+                ;;
+            *"pmc"*)
+                scenario="pmc"
+                echo "${scenario},${ninds},$(pmc_runtime $dir)"
+                ;;
+            *)
+                echo "Scenario should be either pegasus, decaf or pmc"
+                ;;
+        esac
+    done
+}
+
+generate_stats > ${stat_file}
 opts=( "pegasus" "decaf" "pmc" )
 sizes=( 2 5 10 16 )
 for opt in "${opts[@]}"; do
     for size in "${sizes[@]}"; do
         echo ${opt}_${size}
-        get_stats ${stat_file} ${opt}_${size}
+        get_stats ${stat_file} "${opt},${size}"
     done
 done
