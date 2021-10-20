@@ -29,11 +29,11 @@ function pmc_runtime {
 }
 
 function get_stats {
-    cat $1 | grep $2 | awk -F',' '{if($3!=""){count++;sum+=$3};y+=$3^2} END{sq=sqrt(y/NR-(sum/NR)^2);sq=sq?sq:0;print "mean = "sum/count ORS "std = ",sq}'
+    cat $1 | grep "$2" | awk -F',' '{if($3!=""){count++;sum+=$3};y+=$3^2} END{sq=sqrt(y/NR-(sum/NR)^2);sq=sq?sq:0;print "mean = "sum/count ORS "std = ",sq}'
 }
 
 function generate_stats {
-    echo "scenario,num individuals,wall time"
+    echo "Scenario,Number of individuals,Makespan"
     for dir in ${LOG_DIR}/*/; do
         dir_name=$(basename $dir)
         ninds=$(echo ${dir_name} | awk -F[_.] '{print $2}')
@@ -41,15 +41,15 @@ function generate_stats {
         scenario=""
         case $dir_name in
             *"pegasus"*)
-                scenario="pegasus"
+                scenario="Pegasus only"
                 echo "${scenario},${ninds},$(pegasus_runtime $dir)"
                 ;;
             *"decaf"*)
-                scenario="decaf"
+                scenario="Pegasus + Decaf"
                 echo "${scenario},${ninds},$(decaf_runtime $dir)"
                 ;;
             *"pmc"*)
-                scenario="pmc"
+                scenario="PMC"
                 echo "${scenario},${ninds},$(pmc_runtime $dir)"
                 ;;
             *)
@@ -60,7 +60,7 @@ function generate_stats {
 }
 
 generate_stats > ${stat_file}
-opts=( "pegasus" "decaf" "pmc" )
+opts=( "Pegasus only" "Pegasus + Decaf" "PMC" )
 sizes=( 2 5 10 16 )
 for opt in "${opts[@]}"; do
     for size in "${sizes[@]}"; do
