@@ -103,7 +103,11 @@ class GenomeWorkflow(object):
 
     # --- Configuration (Pegasus Properties) ----------------------------------
     def create_pegasus_properties(self):
-        self.props = Properties()
+        self.props = Properties()     
+        
+        if self.exec_site == "cori":
+            self.props["pegasus.transfer.stagein.remote.sites"] = "cori"
+
         if self.use_decaf:
             self.props["pegasus.job.aggregator"] = "Decaf"
             self.props["pegasus.data.configuration"] = "sharedfs"
@@ -112,7 +116,6 @@ class GenomeWorkflow(object):
             self.props["pegasus.job.aggregator"] = "mpiexec"
             self.props["pegasus.data.configuration"] = "sharedfs"
             
-
         if self.custom_site_file:
             print("==> Overriding site file with given site catalog: {}".format(self.custom_site_file))
             self.props["pegasus.catalog.site.file"] = self.custom_site_file
@@ -149,12 +152,11 @@ class GenomeWorkflow(object):
                          contact="${NERSC_USER}@cori.nersc.gov", job_type=SupportedJobs.AUXILLARY)
                 )
                 .add_directories(
-                    Directory(Directory.SHARED_SCRATCH,
-                              "/global/cscratch1/sd/${NERSC_USER}/pegasus/scratch")
-                    .add_file_servers(FileServer("file:///global/cscratch1/sd/${NERSC_USER}/pegasus/scratch", Operation.ALL)),
-                    Directory(Directory.SHARED_STORAGE,
-                              "/global/cscratch1/sd/${NERSC_USER}/pegasus/storage")
-                    .add_file_servers(FileServer("file:///global/cscratch1/sd/${NERSC_USER}/pegasus/storage", Operation.ALL))
+                    Directory(Directory.SHARED_SCRATCH, "/global/cscratch1/sd/${NERSC_USER}/pegasus/scratch")
+                        .add_file_servers(FileServer("file:///global/cscratch1/sd/${NERSC_USER}/pegasus/scratch", Operation.PUT))
+                        .add_file_servers(FileServer("scp://${NERSC_USER}@cori.nersc.gov/global/cscratch1/sd/${NERSC_USER}/pegasus/scratch", Operation.GET)),
+                    Directory(Directory.SHARED_STORAGE, "/global/cscratch1/sd/${NERSC_USER}/pegasus/storage")
+                        .add_file_servers(FileServer("scp:///global/cscratch1/sd/${NERSC_USER}/pegasus/storage", Operation.ALL))
                 )
                 .add_pegasus_profile(
                     style="ssh",
@@ -164,6 +166,7 @@ class GenomeWorkflow(object):
                     runtime="300"
                     # grid_start = "NoGridStart"
                 )
+                .add_profiles(Namespace.PEGASUS, key="SSH_PRIVATE_KEY", value="${HOME}/.ssh/bosco_key.rsa")
                 .add_env(key="PEGASUS_HOME", value="${NERSC_PEGASUS_HOME}")
             )
             self.sc.add_sites(cori)
@@ -266,7 +269,7 @@ class GenomeWorkflow(object):
                 Transformation("individuals", site="cori", pfn=individuals_pfn, is_stageable=True)
                 .add_pegasus_profile(
                     cores="1",
-                    runtime="72000",
+                    runtime="18000",
                     glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
                 )
             )
@@ -274,7 +277,7 @@ class GenomeWorkflow(object):
                 Transformation("individuals_merge", site="cori", pfn=individuals_merge_pfn, is_stageable=True)
                 .add_pegasus_profile(
                     cores="1",
-                    runtime="3600",
+                    runtime="1800",
                     glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
                 )
             )
@@ -283,7 +286,7 @@ class GenomeWorkflow(object):
                 .add_pegasus_profile(
                     cores="1",
                     runtime="1800",
-                    glite_arguments="--qos=debug --constraint=haswell --licenses=SCRATCH",
+                    glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
                 )
             )
             e_mutation_overlap = (
@@ -291,7 +294,7 @@ class GenomeWorkflow(object):
                 .add_pegasus_profile(
                     cores="1",
                     runtime="1800",
-                    glite_arguments="--qos=debug --constraint=haswell --licenses=SCRATCH",
+                    glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
                 )
             )
             e_freq = (
@@ -299,7 +302,7 @@ class GenomeWorkflow(object):
                 .add_pegasus_profile(
                     cores="1",
                     runtime="1800",
-                    glite_arguments="--qos=debug --constraint=haswell --licenses=SCRATCH",
+                    glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH",
                 )
             )   
             if self.use_decaf:
@@ -309,10 +312,13 @@ class GenomeWorkflow(object):
                 decaf = (
                     Transformation("decaf", namespace="dataflow", site="cori", pfn=json_fn, is_stageable=False)
                     .add_pegasus_profile(
-                        runtime="72000",
+                        runtime="18000",
                         glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH --nodes=" + str(n_nodes) + " --ntasks-per-node=1 --ntasks=" + str(n_nodes),
                         # glite_arguments="--qos=debug --constraint=haswell --licenses=SCRATCH",
+                        # exitcode.successmsg="Execution time in seconds:",
                     )
+                    .add_profiles(Namespace.PEGASUS, key="exitcode.successmsg", value="Execution time in seconds:")
+                    .add_profiles(Namespace.PEGASUS, key="dagman.post", value="pegasus-exitcode")
                     .add_env(key="DECAF_ENV_SOURCE", value=env_script)  
                 )
                 self.tc.add_transformations(decaf)
@@ -322,7 +328,7 @@ class GenomeWorkflow(object):
                 pmc = (
                     Transformation("mpiexec", namespace="pegasus", site="cori", pfn=pmc_wrapper_pfn, is_stageable=False)
                     .add_pegasus_profile(
-                        runtime="72000",
+                        runtime="18000",
                         glite_arguments="--qos=regular --constraint=haswell --licenses=SCRATCH --nodes=" + str(n_nodes) + " --ntasks-per-node=1 --ntasks=" + str(n_nodes),
                     )
                     .add_env(key="PEGASUS_PMC_TASKS", value=n_nodes+1)
