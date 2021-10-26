@@ -1,10 +1,12 @@
-# 1000Genome Workflow
+# 1000Genomes Workflow
 
-The 1000 genomes project provides a reference for human variation, having reconstructed the genomes of 2,504 individuals across 26 different populations to energize these approaches. This workflow identifies mutational overlaps using data from the 1000 genomes project in order to provide a null distribution for rigorous statistical evaluation of potential disease-related mutations. The workflow fetchs, parses, and analyzes data from the 1000 genomes project (ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/). It cross-matches the extracted data (which person has which mutations), with the mutation's sift score (how bad it is). Then it performs a few analyses, including plotting.
+The 1000 genomes project provides a reference for human variation, having reconstructed the genomes of 2,504 individuals across 26 different populations to energize these approaches. This workflow identifies mutational overlaps using data from the 1000 genomes project in order to provide a null distribution for rigorous statistical evaluation of potential disease-related mutations. The workflow fetchs, parses, and analyzes data from the [1000 genomes Project] (ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/). It cross-matches the extracted data (which person has which mutations), with the mutation's sift score (how bad it is). Then it performs a few analyses, including plotting.
 
 The figure below shows a branch of the workflow for the analysis of a single chromossome.
 
-<img src="docs/images/1000genome.png?raw=true" width="450">
+<p align="center">
+  <img src="docs/images/1000genome.png?raw=true" width="450">
+</p>
 
 _Individuals_. This task fetches and parses the Phase3 data from the 1000 genomes project by chromosome. These files list all of Single nucleotide polymorphisms (SNPs) variants in that chromosome and which individuals have each one. SNPs are the most common type of genetic variation among people, and are the ones we consider in this work. An individual task creates output files for each individual of _rs numbers_ 3, where individuals have mutations on both alleles.
 
@@ -25,6 +27,7 @@ This workflow is fully compatible with Pegasus WMS, we have the following prereq
 
 - **Pegasus** - version 5.0 or higher
 - **Python** - version 3.6 or higher
+- **HTCondor** - version 9.0 or higher
 
 Note that, there exists a version of this workflow comaptible with Pegasus 4.9 under the branch `4.9`.
 
@@ -36,12 +39,12 @@ Unzipping Input Data
 ./prepare_input.sh
 ```
 
-Generating a Workflow
+Creating a Workflow
 ---------------------
 ```
 ./daxgen.py
 ```
-Or
+Or,
 ```
 ./daxgen.py -d 1000genome.dax -D 20130502 -f data.csv
 ```
@@ -52,5 +55,24 @@ Submitting a Workflow
 
 ### HTCcondor
 
-### HPC clusters 
+By default this workflow will run on a local available HTCondor pool, you have nothing to set.
+
+### HPC clusters at NERSC
+You can submit this workflow at The National Energy Research Scientific Computing Center (NERSC) on [Cori](https://docs.nersc.gov/systems/cori/) if you have an account there. You will havw to use Bosco to submit remotely.
+
+#### Bosco
+
+TODO
+
+#### Submission mode
+
+Then, when generating the workflow with `daxgen.py`, just set the flag `--execution-site cori` instead of the default `local` which will use an HTCondor pool.
+
+#### Clustering mode
+We have implement several clustering methods in that workflow, we cluster all the *individuals* and *individuals_merge* jobs together to improve performance.
+By default there is no clustering used (for more information about clustering in Pegasus see [here](https://pegasus.isi.edu/documentation/user-guide/optimization.html?highlight=cluster#job-clustering)). 
+
+However, interested users can use two different types of clustering that can improve performance:
+ 1. MPI: You can use [Pegasus MPI Cluster](https://pegasus.isi.edu/documentation/manpages/pegasus-mpi-cluster.html) mode  with the flag `--pmc`, which allow Pegasus to run multiple jobs inside using a classic leader and follower paradigm using MPI.
+ 2. MPI In-memory: You can also use an in-memory system called [Decaf](https://bitbucket.org/tpeterka1/decaf/) with the flag `--decaf` (_Warning_: these two options are mutually exclusive!) 
 
