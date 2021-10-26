@@ -68,6 +68,18 @@ We discuss here some memory requirement for the *individuals* jobs which are by 
 | 10                                               | 25,000 / 250,000                                   | 3.17 GB                               |
 | 16                                               | 15,625 / 250,000                                   | 2.93 GB                               |
 
+#### Unsufficient memory for HTCondor slots
+
+If HTCondor does not have enough memory to execute these jobs, Condor will send a SIGKILL (code -9) to the jobs. To avoid that you can configure HTCondor to use dynamic slot allocation (slots can grow on demand) with this (don't forget to restart Condor services after):
+
+```
+# dynamic slots
+SLOT_TYPE_1 = cpus=100%,disk=100%,swap=100%
+SLOT_TYPE_1_PARTITIONABLE = TRUE
+NUM_SLOTS = 1
+NUM_SLOTS_TYPE_1 = 1
+```
+
 ### HPC clusters at NERSC
 You can submit this workflow at The National Energy Research Scientific Computing Center (NERSC) on [Cori](https://docs.nersc.gov/systems/cori/) if you have an account there. You will havw to use Bosco to submit remotely.
 
