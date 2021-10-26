@@ -45,4 +45,12 @@ Or
 ```
 ./daxgen.py -d 1000genome.dax -D 20130502 -f data.csv
 ```
-This workflow assumes that all input data listed in the `data.csv` file is available in the `data/20130502` folder, for example.
+This workflow assumes that all input data listed in the `data.csv` file is available in the `data/20130502` folder by default (but you can change that behavior with the `-D`).
+
+Submitting a Workflow
+---------------------
+
+### HTCcondor
+
+### HPC clusters 
+
