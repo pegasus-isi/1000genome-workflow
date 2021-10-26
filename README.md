@@ -1,11 +1,11 @@
 # 1000Genomes Workflow
 
-The 1000 genomes project provides a reference for human variation, having reconstructed the genomes of 2,504 individuals across 26 different populations to energize these approaches. This workflow identifies mutational overlaps using data from the 1000 genomes project in order to provide a null distribution for rigorous statistical evaluation of potential disease-related mutations. The workflow fetchs, parses, and analyzes data from the [1000 genomes Project] (ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/). It cross-matches the extracted data (which person has which mutations), with the mutation's sift score (how bad it is). Then it performs a few analyses, including plotting.
+The 1000 genomes project provides a reference for human variation, having reconstructed the genomes of 2,504 individuals across 26 different populations to energize these approaches. This workflow identifies mutational overlaps using data from the 1000 genomes project in order to provide a null distribution for rigorous statistical evaluation of potential disease-related mutations. The workflow fetchs, parses, and analyzes data from the [1000 genomes Project](https://www.internationalgenome.org) (see ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/). It cross-matches the extracted data (which person has which mutations), with the mutation's sift score (how bad it is). Then it performs a few analyses, including plotting.
 
 The figure below shows a branch of the workflow for the analysis of a single chromossome.
 
 <p align="center">
-  <img src="docs/images/1000genome.png?raw=true" width="450">
+  <img src="docs/images/1000genome.png?raw=true" width="600">
 </p>
 
 _Individuals_. This task fetches and parses the Phase3 data from the 1000 genomes project by chromosome. These files list all of Single nucleotide polymorphisms (SNPs) variants in that chromosome and which individuals have each one. SNPs are the most common type of genetic variation among people, and are the ones we consider in this work. An individual task creates output files for each individual of _rs numbers_ 3, where individuals have mutations on both alleles.
@@ -56,6 +56,17 @@ Submitting a Workflow
 ### HTCcondor
 
 By default this workflow will run on a local available HTCondor pool, you have nothing to set.
+
+#### Memory requirements
+
+We discuss here some memory requirement for the *individuals* jobs which are by far the largest jobs of the workflow. This workflow processes a given number of chromosomes named `ALL.chrX.250000.vcf` where `X` is the number of the chromosome and `250000` is the number of lines of that file. If the workflow processes 10 chromosomes then we will have 10 *individuals* jobs and one *individuals_merge* job. However, because this file is extremely long (250k lines), we can create multiple individuals job to process one chromosome, then *individuals_merge* job will make sure we merge each chunk processed in parallel. For example if we create 5 *individuals* jobs per chromosome then eachjob will process only 50,000 lines instead of 250,000. If we have 10 chromosomes then we will have `10*5`  *individuals* jobs and `5`  *individuals_merge* jobs. 
+
+| Total number of *individuals* job per chromosome | Input size per *individuals* job (number of lines) | Memory required per *individuals* job |
+| :---                                             |    :----:                                          |                                  ---: |
+| 2                                                | 125,000 / 250,000                                  | 6.10 GB                               |
+| 5                                                | 50,000 / 250,000                                   | 3.93 GB                               |
+| 10                                               | 25,000 / 250,000                                   | 3.17 GB                               |
+| 16                                               | 15,625 / 250,000                                   | 2.93 GB                               |
 
 ### HPC clusters at NERSC
 You can submit this workflow at The National Energy Research Scientific Computing Center (NERSC) on [Cori](https://docs.nersc.gov/systems/cori/) if you have an account there. You will havw to use Bosco to submit remotely.
