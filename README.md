@@ -55,7 +55,7 @@ Submitting a Workflow
 
 ### HTCcondor
 
-By default this workflow will run on a local available HTCondor pool, you have nothing to set.
+By default this workflow will run on a [local](https://pegasus.isi.edu/documentation/user-guide/execution-environments.html#localhost) available HTCondor pool, you have nothing to set.
 
 #### Memory requirements
 
@@ -97,5 +97,8 @@ By default there is no clustering used (for more information about clustering in
 
 However, interested users can use two different types of clustering that can improve performance:
  1. MPI: You can use [Pegasus MPI Cluster](https://pegasus.isi.edu/documentation/manpages/pegasus-mpi-cluster.html) mode  with the flag `--pmc`, which allow Pegasus to run multiple jobs inside using a classic leader and follower paradigm using MPI.
- 2. MPI In-memory: You can also use an in-memory system called [Decaf](https://bitbucket.org/tpeterka1/decaf/) with the flag `--decaf` (_Warning_: these two options are mutually exclusive!) 
+ 2. MPI In-memory: You can also use an in-memory system called [Decaf](https://bitbucket.org/tpeterka1/decaf/) [1] with the flag `--decaf` (_Warning_: these two options are mutually exclusive!) 
 
+# References
+
+Dreher, Matthieu, and Tom Peterka. _Decaf: Decoupled dataflows for in situ high-performance workflows._ No. ANL/MCS-TM-371. Argonne National Lab.(ANL), Argonne, IL (United States), 2017.
