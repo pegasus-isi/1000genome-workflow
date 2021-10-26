@@ -541,7 +541,7 @@ if __name__ == "__main__":
         '--individuals-jobs',
         action='store',
         dest='ind_jobs',
-        default=250,
+        default=1,
         type=int,
         help='Number of individuals jobs that will be created for each chromosome \
             (if larger than the total number of rows in the data for that chromosome, \
@@ -567,7 +567,7 @@ if __name__ == "__main__":
         '--pmc', 
         action='store_true', 
         dest='use_pmc', 
-        help='Use PMC'
+        help='Use Pegasus MPI Cluster mode (PMC) (the compute nodes must have access to MPI)'
     )
     parser.add_argument(
         "-n",
