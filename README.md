@@ -81,15 +81,17 @@ NUM_SLOTS_TYPE_1 = 1
 ```
 
 ### HPC clusters at NERSC
-You can submit this workflow at The National Energy Research Scientific Computing Center (NERSC) on [Cori](https://docs.nersc.gov/systems/cori/) if you have an account there. You will havw to use Bosco to submit remotely.
+You can submit this workflow at The National Energy Research Scientific Computing Center (NERSC) on [Cori](https://docs.nersc.gov/systems/cori/) if you have an account there. You will have to use Bosco to submit remotely.
 
 #### Bosco
 
-[Bosco](https://osg-bosco.github.io/docs/)
+We use [Bosco](https://osg-bosco.github.io/docs/) to enable remote submission to Cori at NERSC using SSH. For the ease of implementation, we utilize the Docker container [pegasus-nersc-bosco](https://github.com/pegasus-isi/pegasus-nersc-bosco).
 
 #### Submission mode
 
-Then, when generating the workflow with `daxgen.py`, just set the flag `--execution-site cori` instead of the default `local` which will use an HTCondor pool.
+Then inside the container, when generating the workflow with `daxgen.py`, just set the flag `--execution-site cori` instead of the default `local` which will use an HTCondor pool.
+
+>Tips: You can clone this repository and prepare input data in a certain location on Cori, then specify `--src-path` to such the directory. By doing that, it is able to avoid the overhead of staging large amount of data.
 
 #### Clustering mode
 We have implement several clustering methods in that workflow, we cluster all the *individuals* and *individuals_merge* jobs together to improve performance.
