@@ -14,9 +14,9 @@ _Populations_. The 1000 genome project has 26 different populations from many di
 
 _Sifting_. A sifting task computes the SIFT scores of all of the SNPs variants, as computed by the Variant Effect Predictor (VEP). SIFT is a sequence homology-based tool that Sorts Intolerant From Tolerant amino acid substitutions, and predicts whether an amino acid substitution in a protein will have a phenotypic effect. For each chromosome the sifting task processes the corresponding VEP, and selects only the SNPs variants that has a SIFT score, recording in a file (per chromosome) the SIFT score and the SNPs variants ids, which are: (1) rs number, (2) ENSEMBL GEN ID, and (3) HGNC ID.
 
-_Pair Overlap Mutations_. This task measures the overlap in mutations (also called SNPs variants) among pairs of individuals by population and by chromosome.
+_Mutations_Overlap_. This task measures the overlap in mutations (also called SNPs variants) among pairs of individuals by population and by chromosome.
 
-_Frequency Overlap Mutations_. This tasks measures the frequency of overlapping in mutations by selecting a number of random individuals, and selecting all SNPs variants without taking into account their SIFT scores.
+_Frequency_. This tasks measures the frequency of overlapping in mutations by selecting a number of random individuals, and selecting all SNPs variants without taking into account their SIFT scores.
 
 
 This workflow is based on the application described in: https://github.com/rosafilgueira/Mutation_Sets
