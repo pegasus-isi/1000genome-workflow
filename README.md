@@ -59,6 +59,7 @@ By default this workflow will run on a [local](https://pegasus.isi.edu/documenta
 
 #### Execution times
 
+This execution has 10 *individuals* jobs and 1 chromosome, it has been executed on one node of Cori at NERSC (Haswell). 
 
 | **Job**       |   **Duration** |   **Fraction (%)** |
 |:--------------|-----------:|---------------:|
@@ -68,7 +69,7 @@ By default this workflow will run on a [local](https://pegasus.isi.edu/documenta
 | _stage_       |        108 |          0.086 |
 | _cleanup_     |         16 |          0.012 |
 | _sifting_     |          6 |          0.005 |
-| _create_dir   |          2 |          0.002 |
+| _create_dir_  |          2 |          0.002 |
 | _chmod_       |      0.05  |          0     |
 
 #### Memory requirements
