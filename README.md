@@ -57,21 +57,6 @@ Submitting a Workflow
 
 By default this workflow will run on a [local](https://pegasus.isi.edu/documentation/user-guide/execution-environments.html#localhost) available HTCondor pool, you have nothing to set.
 
-#### Execution times
-
-This execution has 10 *individuals* jobs and 1 chromosome, it has been executed on one node of Cori at NERSC (Haswell). 
-
-| **Job**       |   **Duration** |   **Fraction (%)** |
-|:--------------|-----------:|---------------:|
-| _individuals_ |     113621 |         91.08  |
-| _frequency_   |       8716 |          6.987 |
-| _mutation_    |       2280 |          1.828 |
-| _stage_       |        108 |          0.086 |
-| _cleanup_     |         16 |          0.012 |
-| _sifting_     |          6 |          0.005 |
-| _create_dir_  |          2 |          0.002 |
-| _chmod_       |      0.05  |          0     |
-
 #### Memory requirements
 
 We discuss here some memory requirement for the *individuals* jobs which are by far the largest jobs of the workflow. This workflow processes a given number of chromosomes named `ALL.chrX.250000.vcf` where `X` is the number of the chromosome and `250000` is the number of lines of that file. If the workflow processes 10 chromosomes then we will have 10 *individuals* jobs and one *individuals_merge* job. However, because this file is extremely long (250k lines), we can create multiple individuals job to process one chromosome, then *individuals_merge* job will make sure we merge each chunk processed in parallel. For example if we create 5 *individuals* jobs per chromosome then eachjob will process only 50,000 lines instead of 250,000. If we have 10 chromosomes then we will have `10*5`  *individuals* jobs and `5`  *individuals_merge* jobs. 
