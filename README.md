@@ -57,6 +57,22 @@ Submitting a Workflow
 
 By default this workflow will run on a [local](https://pegasus.isi.edu/documentation/user-guide/execution-environments.html#localhost) available HTCondor pool, you have nothing to set.
 
+#### Execution times
+
+This execution has 10 *individuals* jobs and 1 chromosome, it has been executed on one node of Cori at NERSC (Haswell). If there are multiple jobs from the same class (e.g., _Individuals_) that runs in parallel then we take the maximum duration among those. _Auxiliary_ represents internal jobs managed by Pegasus (create directory, chmod and cleanup jobs).
+
+| **Job**           | **Duration (s)** | **Fraction (%)** |
+|:------------------|-----------------:|-----------------:|
+| Individuals       |            11431 |            81.85 |
+| Frequency         |             1492 |            10.68 |
+| Individuals_Merge |              500 |             3.58 |
+| Mutation_Overlap  |              468 |             3.35 |
+| Stage_Out         |               34 |             0.24 |
+| Stage_In          |               21 |             0.15 |
+| Auxiliary         |               16 |             0.11 |
+| Sifting           |                6 |             0.05 |
+
+
 #### Memory requirements
 
 We discuss here some memory requirement for the *individuals* jobs which are by far the largest jobs of the workflow. This workflow processes a given number of chromosomes named `ALL.chrX.250000.vcf` where `X` is the number of the chromosome and `250000` is the number of lines of that file. If the workflow processes 10 chromosomes then we will have 10 *individuals* jobs and one *individuals_merge* job. However, because this file is extremely long (250k lines), we can create multiple individuals job to process one chromosome, then *individuals_merge* job will make sure we merge each chunk processed in parallel. For example if we create 5 *individuals* jobs per chromosome then eachjob will process only 50,000 lines instead of 250,000. If we have 10 chromosomes then we will have `10*5`  *individuals* jobs and `5`  *individuals_merge* jobs. 
