@@ -71,7 +71,8 @@ This execution has 10 *individuals* jobs and 1 chromosome, it has been executed 
 | Stage_In          |               21 |             0.15 |
 | Auxiliary         |               16 |             0.11 |
 | Sifting           |                6 |             0.05 |
-
+|                   |                  |                  |
+| **Total**         |     13967 (3.9h) |              100 |
 
 #### Memory requirements
 
