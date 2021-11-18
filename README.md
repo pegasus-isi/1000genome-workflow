@@ -29,7 +29,7 @@ This workflow is fully compatible with Pegasus WMS, we have the following prereq
 - **Python** - version 3.6 or higher
 - **HTCondor** - version 9.0 or higher
 
-Note that, there exists a version of this workflow comaptible with Pegasus 4.9 under the branch `4.9`.
+Note that, there exists a version of this workflow compatible with Pegasus 4.9 under the branch `4.9`.
 
 ## Running this worklow
 
