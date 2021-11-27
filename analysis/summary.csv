@@ -1,0 +1,45 @@
+Scenario,Number of individuals,Makespan
+Pegasus + Decaf,10,8543.73711514473
+Pegasus + Decaf,10,8545.564756631851
+Pegasus + Decaf,10,8617.368437051773
+Pegasus + Decaf,16,5408.824277639389
+Pegasus + Decaf,16,5548.862149715424
+Pegasus + Decaf,16,5746.5334548950195
+Pegasus + Decaf,2,46043.56096577644
+Pegasus + Decaf,2,48048.0733833313
+Pegasus + Decaf,2,45851.15979075432
+Pegasus + Decaf,5,17509.07775402069
+Pegasus + Decaf,5,18488.813624620438
+Pegasus + Decaf,5,17552.700571537018
+Pegasus only,10,11938.054
+Pegasus only,10,12543.94
+Pegasus only,10,16469.672
+Pegasus only,10,12726.843
+Pegasus only,10,11921.541
+Pegasus only,16,12941.816
+Pegasus only,16,9190.339
+Pegasus only,16,11825.544
+Pegasus only,16,8212.556
+Pegasus only,16,7599.735
+Pegasus only,2,60685.380
+Pegasus only,2,68541.857
+Pegasus only,2,66228.255
+Pegasus only,2,60694.502
+Pegasus only,2,59791.131
+Pegasus only,5,24243.320
+Pegasus only,5,23508.689
+Pegasus only,5,24692.171
+Pegasus only,5,23578.241
+Pegasus only,5,23384.943
+PMC,10,12369.474165
+PMC,10,12372.101929
+PMC,10,11838.171748
+PMC,16,8394.771990
+PMC,16,8479.931877
+PMC,16,7920.374965
+PMC,2,60239.606093
+PMC,2,59869.768313
+PMC,2,60481.205352
+PMC,5,24222.567073
+PMC,5,23657.827025
+PMC,5,23858.156587
