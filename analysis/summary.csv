@@ -1,61 +1,61 @@
 Scenario,Number of individuals,Makespan
-Pegasus + Decaf,10,8543.73711514473
-Pegasus + Decaf,10,8541.480144500732
-Pegasus + Decaf,10,8545.564756631851
-Pegasus + Decaf,10,8617.368437051773
-Pegasus + Decaf,10,8589.463982582092
-Pegasus + Decaf,16,5408.824277639389
-Pegasus + Decaf,16,5434.560515165329
-Pegasus + Decaf,16,5548.862149715424
-Pegasus + Decaf,16,5746.5334548950195
-Pegasus + Decaf,16,5421.355496406555
-Pegasus + Decaf,2,46043.56096577644
-Pegasus + Decaf,2,48048.0733833313
-Pegasus + Decaf,2,45851.15979075432
-Pegasus + Decaf,2,45762.0735771656
-Pegasus + Decaf,2,45778.36834335327
-Pegasus + Decaf,5,17509.07775402069
-Pegasus + Decaf,5,17349.470509767532
-Pegasus + Decaf,5,18488.813624620438
-Pegasus + Decaf,5,17552.700571537018
-Pegasus + Decaf,5,17543.21006131172
-Pegasus only,10,11938.054
-Pegasus only,10,12543.94
-Pegasus only,10,16469.672
-Pegasus only,10,12726.843
-Pegasus only,10,11921.541
-Pegasus only,16,12941.816
-Pegasus only,16,9190.339
-Pegasus only,16,11825.544
-Pegasus only,16,8212.556
-Pegasus only,16,7599.735
-Pegasus only,2,60685.380
-Pegasus only,2,68541.857
-Pegasus only,2,66228.255
-Pegasus only,2,60694.502
-Pegasus only,2,59791.131
-Pegasus only,5,24243.320
-Pegasus only,5,23508.689
-Pegasus only,5,24692.171
-Pegasus only,5,23578.241
-Pegasus only,5,23384.943
-PMC,10,12369.474165
-PMC,10,12372.101929
-PMC,10,11838.171748
-PMC,10,11877.499556
-PMC,10,11997.466381
-PMC,16,8394.771990
-PMC,16,8479.931877
-PMC,16,7920.374965
-PMC,16,7646.108335
-PMC,16,7619.431279
-PMC,2,60239.606093
-PMC,2,59869.768313
-PMC,2,60481.205352
-PMC,2,60678.129159
-PMC,2,60438.512215
-PMC,5,24222.567073
-PMC,5,23657.827025
-PMC,5,23858.156587
-PMC,5,23667.331441
-PMC,5,23438.716775
+\textsc{PegDecaf},10,8543.73711514473
+\textsc{PegDecaf},10,8541.480144500732
+\textsc{PegDecaf},10,8545.564756631851
+\textsc{PegDecaf},10,8617.368437051773
+\textsc{PegDecaf},10,8589.463982582092
+\textsc{PegDecaf},16,5408.824277639389
+\textsc{PegDecaf},16,5434.560515165329
+\textsc{PegDecaf},16,5548.862149715424
+\textsc{PegDecaf},16,5746.5334548950195
+\textsc{PegDecaf},16,5421.355496406555
+\textsc{PegDecaf},2,46043.56096577644
+\textsc{PegDecaf},2,48048.0733833313
+\textsc{PegDecaf},2,45851.15979075432
+\textsc{PegDecaf},2,45762.0735771656
+\textsc{PegDecaf},2,45778.36834335327
+\textsc{PegDecaf},5,17509.07775402069
+\textsc{PegDecaf},5,17349.470509767532
+\textsc{PegDecaf},5,18488.813624620438
+\textsc{PegDecaf},5,17552.700571537018
+\textsc{PegDecaf},5,17543.21006131172
+\textsc{Vanilla},10,11938.054
+\textsc{Vanilla},10,12543.94
+\textsc{Vanilla},10,16469.672
+\textsc{Vanilla},10,12726.843
+\textsc{Vanilla},10,11921.541
+\textsc{Vanilla},16,12941.816
+\textsc{Vanilla},16,9190.339
+\textsc{Vanilla},16,11825.544
+\textsc{Vanilla},16,8212.556
+\textsc{Vanilla},16,7599.735
+\textsc{Vanilla},2,60685.380
+\textsc{Vanilla},2,68541.857
+\textsc{Vanilla},2,66228.255
+\textsc{Vanilla},2,60694.502
+\textsc{Vanilla},2,59791.131
+\textsc{Vanilla},5,24243.320
+\textsc{Vanilla},5,23508.689
+\textsc{Vanilla},5,24692.171
+\textsc{Vanilla},5,23578.241
+\textsc{Vanilla},5,23384.943
+\textsc{PMC},10,12369.474165
+\textsc{PMC},10,12372.101929
+\textsc{PMC},10,11838.171748
+\textsc{PMC},10,11877.499556
+\textsc{PMC},10,11997.466381
+\textsc{PMC},16,8394.771990
+\textsc{PMC},16,8479.931877
+\textsc{PMC},16,7920.374965
+\textsc{PMC},16,7646.108335
+\textsc{PMC},16,7619.431279
+\textsc{PMC},2,60239.606093
+\textsc{PMC},2,59869.768313
+\textsc{PMC},2,60481.205352
+\textsc{PMC},2,60678.129159
+\textsc{PMC},2,60438.512215
+\textsc{PMC},5,24222.567073
+\textsc{PMC},5,23657.827025
+\textsc{PMC},5,23858.156587
+\textsc{PMC},5,23667.331441
+\textsc{PMC},5,23438.716775
