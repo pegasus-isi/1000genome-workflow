@@ -1,0 +1,21 @@
+Scenario,Number of individuals,Makespan
+\textsc{PegDecaf},16,5408.824277639389
+\textsc{PegDecaf},16,5434.560515165329
+\textsc{PegDecaf},16,5548.862149715424
+\textsc{PegDecaf},16,5746.5334548950195
+\textsc{PegDecaf},16,5421.355496406555
+\textsc{PegDecaf},1,4855.689092159271
+\textsc{PegDecaf},1,4868.463005542755
+\textsc{PegDecaf},2,5031.129429340363
+\textsc{PegDecaf},2,5039.326780319214
+\textsc{PegDecaf},4,5115.978767156601
+\textsc{PegDecaf},8,5156.561123609543
+\textsc{PMC},16,8394.771990
+\textsc{PMC},16,8479.931877
+\textsc{PMC},16,7920.374965
+\textsc{PMC},16,7646.108335
+\textsc{PMC},16,7619.431279
+\textsc{PMC},1,6960.246128
+\textsc{PMC},2,7074.634000
+\textsc{PMC},4,7111.685123
+\textsc{PMC},8,7290.049388
