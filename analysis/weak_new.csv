@@ -2,6 +2,8 @@ Scenario,Number of individuals,Makespan
 \textsc{PegDecaf},16,1730.641651391983
 \textsc{PegDecaf},1,1550.7250397205353
 \textsc{PegDecaf},32,1872.8082418441772
+\textsc{PegDecaf},8,1667.2224745750427
 \textsc{PMC},16,2645.040512
 \textsc{PMC},1,2264.340917
 \textsc{PMC},32,3244.791210
+\textsc{PMC},8,2515.373190
