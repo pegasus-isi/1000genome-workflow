@@ -30,6 +30,7 @@ Scenario,Number of individuals,Makespan
 \textsc{Vanilla},10,11921.541
 \textsc{Vanilla},1,118192.400
 \textsc{Vanilla},1,118895.459
+\textsc{Vanilla},1,118274.549
 \textsc{Vanilla},16,12941.816
 \textsc{Vanilla},16,9190.339
 \textsc{Vanilla},16,11825.544
@@ -52,6 +53,7 @@ Scenario,Number of individuals,Makespan
 \textsc{PMC},10,11997.466381
 \textsc{PMC},1,118283.134844
 \textsc{PMC},1,119122.199967
+\textsc{PMC},1,119117.062530
 \textsc{PMC},16,8394.771990
 \textsc{PMC},16,8479.931877
 \textsc{PMC},16,7920.374965
