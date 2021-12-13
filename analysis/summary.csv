@@ -5,6 +5,9 @@ Scenario,Number of individuals,Makespan
 \textsc{PegDecaf},10,8617.368437051773
 \textsc{PegDecaf},10,8589.463982582092
 \textsc{PegDecaf},1,89052.536921978
+\textsc{PegDecaf},1,90445.60176205635
+\textsc{PegDecaf},1,91241.02503037453
+\textsc{PegDecaf},1,90335.82422280312
 \textsc{PegDecaf},16,5408.824277639389
 \textsc{PegDecaf},16,5434.560515165329
 \textsc{PegDecaf},16,5548.862149715424
@@ -26,6 +29,7 @@ Scenario,Number of individuals,Makespan
 \textsc{Vanilla},10,12726.843
 \textsc{Vanilla},10,11921.541
 \textsc{Vanilla},1,118192.400
+\textsc{Vanilla},1,118895.459
 \textsc{Vanilla},16,12941.816
 \textsc{Vanilla},16,9190.339
 \textsc{Vanilla},16,11825.544
@@ -47,6 +51,7 @@ Scenario,Number of individuals,Makespan
 \textsc{PMC},10,11877.499556
 \textsc{PMC},10,11997.466381
 \textsc{PMC},1,118283.134844
+\textsc{PMC},1,119122.199967
 \textsc{PMC},16,8394.771990
 \textsc{PMC},16,8479.931877
 \textsc{PMC},16,7920.374965
