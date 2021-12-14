@@ -33,6 +33,7 @@ Scenario,Number of individuals,Makespan
 \textsc{Vanilla},16,2835.113
 \textsc{Vanilla},16,3043.048
 \textsc{Vanilla},16,2859.216
+\textsc{Vanilla},16,3381.711
 \textsc{Vanilla},1,2315.737
 \textsc{Vanilla},1,2240.998
 \textsc{Vanilla},1,2236.863
@@ -47,6 +48,7 @@ Scenario,Number of individuals,Makespan
 \textsc{Vanilla},32,3190.448
 \textsc{Vanilla},32,3419.038
 \textsc{Vanilla},32,3455.368
+\textsc{Vanilla},32,3772.969
 \textsc{Vanilla},4,2519.148
 \textsc{Vanilla},4,2435.778
 \textsc{Vanilla},4,2405.608
@@ -56,6 +58,7 @@ Scenario,Number of individuals,Makespan
 \textsc{Vanilla},8,2792.805
 \textsc{Vanilla},8,2939.388
 \textsc{Vanilla},8,2610.333
+\textsc{Vanilla},8,2980.545
 \textsc{PMC},16,2645.040512
 \textsc{PMC},16,2693.891025
 \textsc{PMC},16,3051.289278
