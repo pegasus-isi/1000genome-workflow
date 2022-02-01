@@ -2,7 +2,7 @@
 
 The 1000 genomes project provides a reference for human variation, having reconstructed the genomes of 2,504 individuals across 26 different populations to energize these approaches. This workflow identifies mutational overlaps using data from the 1000 genomes project in order to provide a null distribution for rigorous statistical evaluation of potential disease-related mutations. The workflow fetchs, parses, and analyzes data from the [1000 genomes Project](https://www.internationalgenome.org) (see ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/). It cross-matches the extracted data (which person has which mutations), with the mutation's sift score (how bad it is). Then it performs a few analyses, including plotting.
 
-The figure below shows a branch of the workflow for the analysis of a single chromossome.
+The figure below shows a branch of the workflow for the analysis of a single chromosome.
 
 <p align="center">
   <img src="docs/images/1000genome.png?raw=true" width="600">
