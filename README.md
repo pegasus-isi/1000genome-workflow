@@ -51,7 +51,8 @@ Or,
 This workflow assumes that all input data listed in the `data.csv` file is available in the `data/20130502` folder by default (but you can change that behavior with the `-D`).
 
 ### Workflow parallelism
-You can control how many `individuals` jobs **per chromosome** will get created with the parameter `-i IND_JOBS, --individuals-jobs IND_JOBS`, by default it's set to `1`. If the value provided is larger than the total number of rows in the data file for that chromosome, then it will be set to the number of rows so that each job will process one row (_Warning_: this will extremely inefficient and will create a large number of jobs, about 250,000).
+You can control how many `individuals` jobs **per chromosome** will get created with the parameter `-i IND_JOBS, --individuals-jobs IND_JOBS`, by default it's set to `1`. If the value provided is larger than the total number of rows in the data file for that chromosome, then it will be set to the number of rows so that each job will process one row (_Warning_: this will extremely inefficient and will create a large number of jobs, about `250,000`).
+In addition, it is required that `IND_JOBS` **divides the number of rows** for each chromosome, in this case `250,000`.
 
 Submitting a Workflow
 ---------------------
