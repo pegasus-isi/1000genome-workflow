@@ -115,7 +115,10 @@ class ReadData:
             text = []
             for item in f:
                 item = item.split()
-                text.append(item[1])
+                try:
+                    text.append(item[1])
+                except IndexError as e:
+                    print("ERROR({}): while reading {}: (item: {})".format(str(e), filename, item))        
             sifted_mutations = list(set(rs_numbers).intersection(text))
             mutation_index_array.append(sifted_mutations)
 
