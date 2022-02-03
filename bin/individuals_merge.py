@@ -10,7 +10,7 @@ import tempfile
 
 def compress(archive, input_dir):
     with tarfile.open(archive, "w:gz") as f:
-        f.add(input_dir, arcname=os.path.basename(input_dir))
+        f.add(input_dir, arcname="")
 
 def extract_all(archive, output_dir):
     with tarfile.open(archive, "r:*") as f:
