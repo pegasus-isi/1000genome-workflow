@@ -45,9 +45,9 @@ outdata_dir = "./chr{0}-{1}-freq/output_no_sift/".format(str(args.c), str(args.p
 plot_dir = "./chr{0}-{1}-freq/plots_no_sift/".format(str(args.c), str(args.pop)) 
 
 if not os.path.exists(outdata_dir):
-    os.makedirs(outdata_dir)
+    os.makedirs(outdata_dir, exist_ok=True)
 if not os.path.exists(plot_dir):
-    os.makedirs(plot_dir)
+    os.makedirs(plot_dir, exist_ok=True)
 
 OutputFormat = '.png'
 
