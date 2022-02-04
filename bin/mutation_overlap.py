@@ -40,13 +40,13 @@ n_runs = 1
 siftfile = './sifted.SIFT.chr' + str(c) + '.txt'
 data_dir = './'
 pop_dir = './'
-outdata_dir = './output_no_sift/'
-plot_dir = './plots_no_sift/'
+outdata_dir = "./chr%s-%s/output_no_sift/".format(str(args.c), str(args.pop))
+plots_dir = "./chr%s-%s/plots_no_sift/".format(str(args.c), str(args.pop))
 
 if not os.path.exists(outdata_dir):
   os.makedirs(outdata_dir)
-if not os.path.exists(plot_dir):
-  os.makedirs(plot_dir)
+if not os.path.exists(plots_dir):
+  os.makedirs(plots_dir)
 
 OutputFormat = '.png'
 
@@ -380,13 +380,13 @@ if __name__ == '__main__':
     random_indpairsfile = outdata_dir + '100_individual_overlap_chr' + str(c) + '_s' + \
         str(SIFT) + '_' + POP + '.txt'
 
-    colormap = plot_dir + 'colormap_distribution_c' + str(c) + '_s' + \
+    colormap = plots_dir + 'colormap_distribution_c' + str(c) + '_s' + \
             str(SIFT) + '_' + POP + OutputFormat
-    half_overlap = plot_dir + 'half_distribution_c' + str(c) + '_s' + \
+    half_overlap = plots_dir + 'half_distribution_c' + str(c) + '_s' + \
             str(SIFT) + '_' + POP + OutputFormat
-    total_overlap = plot_dir + 'total_distribution_c' + str(c) + '_s' + \
+    total_overlap = plots_dir + 'total_distribution_c' + str(c) + '_s' + \
             str(SIFT) + '_' + POP + OutputFormat
-    random_overlap = plot_dir + '100_distribution_c' + str(c) + '_s' + \
+    random_overlap = plots_dir + '100_distribution_c' + str(c) + '_s' + \
             str(SIFT) + '_' + POP + OutputFormat
     
     total_mutations_filename = outdata_dir + 'total_mutations_individual' + str(c) + '_s' + \
@@ -437,5 +437,5 @@ if __name__ == '__main__':
     # gen final output
     tar = tarfile.open('chr%s-%s.tar.gz' % (c, POP), 'w:gz')
     tar.add(outdata_dir)
-    tar.add(plot_dir)
+    tar.add(plots_dir)
     tar.close()
