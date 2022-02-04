@@ -41,8 +41,8 @@ n_indiv = 52
 siftfile = './sifted.SIFT.chr' + str(c) + '.txt'
 data_dir = './'
 pop_dir = './'
-outdata_dir = "./chr%s-%s-freq/output_no_sift/".format(str(args.c), str(args.pop)) 
-plot_dir = "./chr%s-%s-freq/plots_no_sift/".format(str(args.c), str(args.pop)) 
+outdata_dir = "./chr{0}-{1}-freq/output_no_sift/".format(str(args.c), str(args.pop)) 
+plot_dir = "./chr{0}-{1}-freq/plots_no_sift/".format(str(args.c), str(args.pop)) 
 
 if not os.path.exists(outdata_dir):
     os.makedirs(outdata_dir)

@@ -40,8 +40,8 @@ n_runs = 1
 siftfile = './sifted.SIFT.chr' + str(c) + '.txt'
 data_dir = './'
 pop_dir = './'
-outdata_dir = "./chr%s-%s/output_no_sift/".format(str(args.c), str(args.pop))
-plots_dir = "./chr%s-%s/plots_no_sift/".format(str(args.c), str(args.pop))
+outdata_dir = "./chr{0}-{1}/output_no_sift/".format(str(args.c), str(args.pop))
+plots_dir = "./chr{0}-{1}/plots_no_sift/".format(str(args.c), str(args.pop))
 
 if not os.path.exists(outdata_dir):
   os.makedirs(outdata_dir)
