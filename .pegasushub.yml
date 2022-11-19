@@ -1,0 +1,7 @@
+pegasus:
+  version: 
+    min: 5.0.2
+scripts:
+  generator: daxgen.py
+dependencies:
+  - "Python 3.5"
