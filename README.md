@@ -92,7 +92,7 @@ We discuss here some memory requirement for the *individuals* jobs which are by 
 
 >Tips: You can use `--individuals-jobs` or `-i` to to vary the number of *individuals* jobs per chromosomes (by default there is one *individuals* per chromosomes).
 
-#### Unsufficient memory for HTCondor slots
+#### Insufficient memory for HTCondor slots
 
 If HTCondor does not have enough memory to execute these jobs, Condor will send a SIGKILL (code -9) to the jobs. To avoid that you can configure HTCondor to use dynamic slot allocation (slots can grow on demand) with this (don't forget to restart Condor services after):
 
