@@ -432,7 +432,7 @@ class GenomeWorkflow(object):
                 # Sifting Job
                 f_sifting = File(row[2])
                 self.rc.add_replica(site=self.file_site, lfn=f_sifting, pfn=self.src_path +
-                                    '/data/' + self.dataset + '/sifting/' + f_sifting.lfn)
+                                    '/data/' + self.dataset + '/' + f_sifting.lfn)
 
                 f_sifted = File('sifted.SIFT.chr%s.txt' % c_num)
                 sifted_files.append(f_sifted)
